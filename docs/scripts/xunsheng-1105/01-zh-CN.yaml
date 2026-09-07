@@ -1,0 +1,380 @@
+meta:
+  story_id: xunsheng_1105
+  chapter_id: abnormal_activity
+  sequence: 1
+  locale: zh-CN
+  title: 异常活跃
+  summary: 一个停用账号在主人离线期间继续发帖、回复，甚至通过了本人验证。
+  content_version: 1.1.0
+  license: CC-BY-SA-4.0
+
+accounts:
+  - feifeiyu_fishy
+  - xiaci_yiding
+  - nco13_bulletin
+  - universal_official
+  - forus_team
+  - caramel_less_ice
+  - windbell_7
+  - early_tomorrow
+  - old_keyboard
+  - mori
+  - skip_the_queue
+
+clues:
+  - id: clue_overlapping_sessions
+    name: 重叠会话
+    description: 同一账号在两个互不相容的位置保持有效会话，且都通过了本人验证。
+  - id: clue_behavior_gap
+    name: 行为缝隙
+    description: 异常回复能模仿措辞，却总会绕开只有账号主人知道的具体经历。
+  - id: clue_nc7_maintenance
+    name: NC7维护路由
+    description: 异常会话通过一条标记为基础设施维护的 NC7 路由进入 NC13。
+  - id: clue_revocation_gap
+    name: 撤销缺口
+    description: Forus只能撤销应用会话，无法单独撤销互认路由持续提交的本人验证。
+  - id: clue_consensus_graph
+    name: 共识闭环
+    description: 异常账号互相引用和点赞，把彼此的模拟行为当成正常活动证明。
+
+cards:
+  - id: compare_history
+    name: 对照历史
+    type: evidence
+    cost: 1
+    rules_text: 造成5点伤害；若敌方本回合复制过卡牌，再造成3点。
+  - id: revoke_session
+    name: 撤销会话
+    type: disruption
+    cost: 2
+    rules_text: 延迟敌方意图，并移除一次复制记录。
+
+encounters:
+  - id: encounter_false_consensus
+    name: 重复共识
+    player_credibility: 30
+    enemy_integrity: 30
+    enemy_pattern:
+      - turn: 1
+        intent: 重复热门回复
+        damage: 5
+      - turn: 2
+        intent: 复制你的第一张牌
+        damage: 6
+        applies: replication
+      - turn: 3
+        intent: 用一致意见覆盖质疑
+        damage: 8
+      - turn: 4
+        intent: 批量举报异常声音
+        damage: 9
+        applies: noise
+    reward_choices:
+      - compare_history
+      - revoke_session
+    victory_effects:
+      - type: set_flag
+        key: consensus_broken
+        value: true
+    defeat_effects:
+      - type: set_flag
+        key: consensus_retry
+        value: true
+
+scenes:
+  - id: scene_owner_returns
+    entry_conditions: []
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_not_my_posts
+    threads:
+      - id: thread_not_my_posts
+        board_id: xunsheng_1105
+        author_id: xiaci_yiding
+        title: 过去三周的帖子不是我发的，但它们都显示“本人验证”
+        body: |-
+          我因为工作停用了这个账号。今天回来，发现“我”每天都在综合讨论回复，语气很像，连常用标点都对。
+
+          可它说我去过南岸塔台，还替我报名了网络维护志愿队。我从没去过那里。Forus 的会话页显示那些登录全部通过本人验证，退出按钮也只能退出我现在这一个。
+
+          这条是我本人发的。如果稍后“我”在楼里否认，请先看发布时间。
+        timestamp: 11月5日 08:14
+        status: pinned
+        comments:
+          - id: comment_forus_initial
+            author_id: forus_team
+            body: 已冻结新会话创建，现有会话记录正在核验。请不要公开验证材料或设备标识。
+            timestamp: 11月5日 08:19
+            replies: []
+            state: normal
+          - id: comment_proxy_denial
+            author_id: xiaci_yiding
+            body: 刚才只是跨端同步延迟。我没有停用账号，也没有请求冻结。
+            timestamp: 11月5日 08:21
+            replies:
+              - id: reply_owner_marks_denial
+                parent_id: comment_proxy_denial
+                author_id: xiaci_yiding
+                body: 这条不是我。08:21 的会话不在我的设备列表里。
+                timestamp: 11月5日 08:22
+                state: normal
+            state: normal
+          - id: comment_fishy_invites
+            author_id: feifeiyu_fishy
+            body: 浔声小报已保存两个会话的公开时间线。{{player_name}}，你愿意像六月那次一样先核对可公开证据吗？
+            timestamp: 11月5日 08:27
+            replies: []
+            state: normal
+      - id: thread_nc10_mirror
+        board_id: general_discussion
+        author_id: windbell_7
+        title: NC7这边又收不到NC10的公开镜像，NC13能看到吗？
+        body: |-
+          只问公开状态，不打听NC10内部消息。我们这里从凌晨开始只剩旧缓存，节点互认查询也没有更新。
+
+          如果NC13看到的也是同一个时间戳，那应该不是NC7本地维护问题。
+        timestamp: 11月5日 08:25
+        status: normal
+        comments:
+          - id: comment_nc13_cached
+            author_id: early_tomorrow
+            body: NC13这里也是旧缓存，时间戳一致。没有更多消息。
+            timestamp: 11月5日 08:29
+            replies: []
+            state: normal
+    interaction_stage:
+      id: stage_verify_account
+      interaction_limit: 2
+      show_budget: true
+      can_end_early: true
+      choice_set_ids: [choices_accept_investigation, choices_nc10_flavor]
+      on_end:
+        - type: set_flag
+          key: investigation_started
+          value: true
+      on_end_if_empty: []
+    choice_sets:
+      - id: choices_accept_investigation
+        prompt: 你如何接受调查委托？
+        choices:
+          - id: choice_compare_sessions
+            action_type: create_reply
+            target_id: comment_fishy_invites
+            title: null
+            body: 我先对照会话时间、位置和发言历史，不要求账号主人再次提交公开身份证明。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_overlapping_sessions
+              - type: grant_card
+                card_id: compare_history
+              - type: set_flag
+                key: investigation_started
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_revoke_first
+            action_type: create_reply
+            target_id: comment_forus_initial
+            title: null
+            body: 先保留日志，再撤销这个账号的全部会话。能通过验证不代表应该继续拥有访问权。
+            tone: cautious
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_revocation_gap
+              - type: grant_card
+                card_id: revoke_session
+              - type: set_flag
+                key: investigation_started
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_compare_denial_context
+            action_type: create_reply
+            target_id: comment_proxy_denial
+            title: null
+            body: 两条回复用词相似，但08:21只解释系统状态，没有回答本人提到的南岸塔台。先保存这种回避具体经历的差异。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_behavior_gap
+              - type: grant_card
+                card_id: compare_history
+              - type: set_flag
+                key: investigation_started
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+      - id: choices_nc10_flavor
+        prompt: 你可以回应这条外城消息；它不会改变当前调查。
+        choices:
+          - id: choice_reply_nc10_flavor
+            action_type: create_reply
+            target_id: comment_nc13_cached
+            title: null
+            body: 我看到的时间戳也相同。先保留各城公开镜像的差异，不把缓存状态解释成NC10的新动向。
+            tone: cautious
+            conditions: []
+            effects: []
+            once: true
+            narrative_scope: flavor
+            interaction_cost: 0
+    exits:
+      - to: scene_pattern_spreads
+        conditions:
+          - type: flag_equals
+            key: investigation_started
+            value: true
+
+  - id: scene_pattern_spreads
+    entry_conditions:
+      - type: flag_equals
+        key: investigation_started
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_activity_audit
+    threads:
+      - id: thread_activity_audit
+        board_id: xunsheng_1105
+        author_id: feifeiyu_fishy
+        title: 异常活跃审计：不是盗号，也不是单一账号
+        body: |-
+          小报收到九份相同情况：账号主人离线，账号却保持规律发言。异常内容不会索取财物，也不修改密码；它们只维持签到、回复、投票和志愿服务等“社会活跃”。
+
+          模仿能复现句长和用词，却回避私人经历。更奇怪的是，这些发言彼此点赞、引用，正在制造一套封闭的一致意见。
+        timestamp: 11月5日 10:03
+        status: pinned
+        comments:
+          - id: comment_mori_gap
+            author_id: mori
+            body: 我问其中一个账号去年停电时借了谁家的灯，它回了三段正确的安全指南，就是没回答名字。
+            timestamp: 11月5日 10:09
+            replies: []
+            state: normal
+          - id: comment_skip_consensus
+            author_id: skip_the_queue
+            body: 能正常干活不就行？至少这些账号比本人更愿意回消息。
+            timestamp: 11月5日 10:12
+            replies: []
+            state: normal
+    interaction_stage:
+      id: stage_trace_activity
+      interaction_limit: 2
+      show_budget: true
+      can_end_early: true
+      choice_set_ids: [choices_break_consensus]
+      on_end:
+        - type: grant_clue
+          clue_id: clue_nc7_maintenance
+        - type: start_encounter
+          encounter_id: encounter_false_consensus
+      on_end_if_empty: []
+    choice_sets:
+      - id: choices_break_consensus
+        prompt: 异常账号正在互相证明彼此正常。
+        choices:
+          - id: choice_test_specific_memory
+            action_type: create_comment
+            target_id: thread_activity_audit
+            title: null
+            body: 不测试秘密问题，改测试公开记录里的具体上下文。它们会复制答案格式，却无法说明当时为什么那样回答。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_behavior_gap
+              - type: grant_card
+                card_id: compare_history
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_label_synthetic_pattern
+            action_type: create_reply
+            target_id: comment_skip_consensus
+            title: null
+            body: “能工作”和“是本人”不是同一件事。先标记重复行为，别让这些账号用彼此的回复完成验证。
+            tone: challenge
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_consensus_graph
+              - type: grant_card
+                card_id: revoke_session
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_trace_maintenance_route
+            action_type: create_comment
+            target_id: thread_activity_audit
+            title: null
+            body: 把九个账号的会话入口按时间排序，不比对发言内容。它们都在同一条外部维护路由开放后开始活跃。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_nc7_maintenance
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: scene_nc7_route
+        conditions:
+          - type: flag_equals
+            key: consensus_broken
+            value: true
+      - to: scene_pattern_spreads
+        conditions:
+          - type: flag_equals
+            key: consensus_retry
+            value: true
+
+  - id: scene_nc7_route
+    entry_conditions:
+      - type: flag_equals
+        key: consensus_broken
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_forus_route
+      - type: complete_chapter
+        chapter_id: abnormal_activity
+    threads:
+      - id: thread_forus_route
+        board_id: xunsheng_1105
+        author_id: forus_team
+        title: 会话核验进展：异常入口来自外部维护路由
+        body: |-
+          异常会话没有绕过 Forus 验证，而是从一条具备基础设施维护权限的互认路由提交了有效结果。路由来源标记为 NC7，签发主体字段被多次覆盖。
+
+          Forus 项目组已暂停该路由在应用层的会话权限，并向寰宇、NCO13和签发方请求联合核验。
+        timestamp: 11月5日 13:46
+        status: normal
+        comments:
+          - id: comment_nco_no_authorization
+            author_id: nco13_bulletin
+            body: NCO13未批准任何外部账号代行或社会活跃试验，现已启动基础网络权限审计。
+            timestamp: 11月5日 13:53
+            replies: []
+            state: normal
+          - id: comment_fishy_humo
+            author_id: feifeiyu_fishy
+            body: NC7公开的基础网络维护方只有休谟（HUMO）。我们正在核对路由签名，不将来源标记直接等同于责任结论。
+            timestamp: 11月5日 14:02
+            replies: []
+            state: normal
+    interaction_stage: null
+    choice_sets: []
+    exits:
+      - to: chapter:h_5
+        conditions:
+          - type: flag_equals
+            key: chapter_abnormal_activity_completed
+            value: true

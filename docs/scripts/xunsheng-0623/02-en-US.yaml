@@ -1,0 +1,475 @@
+meta:
+  story_id: xunsheng_0623
+  chapter_id: signed_for
+  sequence: 2
+  locale: en-US
+  title: Signed For
+  summary: The Nancuo ledger resurfaces. The question is no longer who sent the old belongings, but who may claim a piece of someone else's past.
+  content_version: 1.1.0
+  license: CC-BY-SA-4.0
+
+accounts:
+  - feifeiyu_fishy
+  - jinwan_chishenme
+  - stpoman
+  - nco13_bulletin
+  - universal_official
+  - caramel_less_ice
+  - windbell_7
+  - early_tomorrow
+  - old_keyboard
+  - mori
+  - skip_the_queue
+
+clues:
+  - id: clue_restore_log
+    name: Restoration Log
+    description: Routine maintenance restored the ledger as unfinished deliveries. Nobody deliberately initiated the shipments.
+  - id: clue_relation_match
+    name: Relationship-Matching Rule
+    description: The system combined current addresses, kinship, and old storage slots, mistaking “possibly related” for “authorized to receive.”
+  - id: clue_custody_deadline
+    name: Disposal Deadline
+    description: NCO13 ordered the parcels recalled and ledger copies deleted by noon the next day.
+
+cards:
+  - id: preserve_ledger
+    name: Preserve the Ledger
+    type: protection
+    cost: 2
+    rules_text: Gain 8 Shield; clues cannot be blocked this turn.
+  - id: request_consent
+    name: Ask the Person
+    type: protocol
+    cost: 2
+    rules_text: Whenever you play Evidence, gain 2 Shield; lasts 3 turns.
+  - id: separate_match
+    name: Separate Relation from Ownership
+    type: argument
+    cost: 1
+    rules_text: Apply Exposed; draw 1 card if you have Relationship-Matching Rule.
+
+encounters:
+  - id: encounter_recall_notice
+    name: Blanket Recall
+    player_credibility: 30
+    enemy_integrity: 28
+    enemy_pattern:
+      - turn: 1
+        intent: Mark every parcel as a data error
+        damage: 6
+      - turn: 2
+        intent: Block the old ledger's source
+        damage: 5
+        applies: noise
+      - turn: 3
+        intent: Demand immediate deletion
+        damage: 8
+      - turn: 4
+        intent: Repeat the disposal notice
+        damage: 7
+    reward_choices:
+      - preserve_ledger
+      - separate_match
+    victory_effects:
+      - type: set_flag
+        key: recall_challenged
+        value: true
+    defeat_effects:
+      - type: set_flag
+        key: recall_pressure
+        value: true
+  - id: encounter_claim_channel
+    name: Public Review of the Claim Channel
+    player_credibility: 30
+    enemy_integrity: 46
+    enemy_pattern:
+      - turn: 1
+        intent: Challenge the ledger's authenticity
+        damage: 6
+      - turn: 2
+        intent: Amplify address-exposure risks
+        damage: 8
+        applies: noise
+      - turn: 3
+        intent: Confuse kinship with ownership
+        damage: 8
+      - turn: 4
+        intent: Lock the public post
+        damage: 10
+        applies: noise
+      - turn: 5
+        intent: Execute blanket disposal
+        damage: 12
+    reward_choices: []
+    victory_effects:
+      - type: set_flag
+        key: voluntary_claim_approved
+        value: true
+    defeat_effects:
+      - type: set_flag
+        key: ledger_destroyed
+        value: true
+
+scenes:
+  - id: scene_ledger_returns
+    entry_conditions:
+      - type: has_clue
+        clue_id: clue_hidden_number
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_stpoman_ledger
+    threads:
+      - id: thread_stpoman_ledger
+        board_id: xunsheng_0623
+        author_id: stpoman
+        title: Nancuo wasn't a sender depot. In its final years, it only held things people left behind
+        body: |-
+          Before Nancuo was demolished, relocated residents stored belongings they could not take immediately. Items that expired without collection were not trash, and they did not automatically pass to relatives. The ledger held only a slot, an item description, and the contact details provided at the time.
+
+          Yesterday, maintenance restored a batch of “unfinished tasks.” The old ledger was mistaken for pending deliveries, and the new system filled in recipients using current addresses and mutual-recognition relationships. There was no mysterious sender and nobody pressed a batch-send button. Two systems, both trying to clean up, combined “possibly related” into “authorized to receive.”
+
+          I kept a copy containing only slots and item descriptions. I will not publish full names.
+        timestamp: June 24, 09:12
+        status: pinned
+        comments:
+          - id: comment_dinner_recorder
+            author_id: jinwan_chishenme
+            body: "The 042 under the recorder matches the ledger. The depositor left one line: ‘For whoever knows how much salt goes in this soup.’ I don't know."
+            timestamp: June 24, 09:18
+            replies: []
+            state: normal
+          - id: comment_old_keyboard_rights
+            author_id: old_keyboard
+            body: Related is not the same as ownership. Even a kinship match does not mean somebody wants to know.
+            timestamp: June 24, 09:25
+            replies: []
+            state: normal
+          - id: comment_skip_destroy
+            author_id: skip_the_queue
+            body: Then recall and destroy everything. Don't deliver decades-old trouble to people now.
+            timestamp: June 24, 09:29
+            replies: []
+            state: normal
+    interaction_stage:
+      id: stage_interpret_ledger
+      interaction_limit: 1
+      show_budget: true
+      can_end_early: true
+      choice_set_ids: [choices_interpret_ledger]
+      on_end:
+        - type: set_flag
+          key: ledger_position_set
+          value: true
+      on_end_if_empty:
+        - type: set_route
+          route: disposal
+    choice_sets:
+      - id: choices_interpret_ledger
+        prompt: How will you define these matches?
+        choices:
+          - id: choice_distinguish_ownership
+            action_type: create_reply
+            target_id: comment_old_keyboard_rights
+            title: null
+            body: Address, kinship, and ownership are three different things. Preserve the anonymous item list first, then let informed people decide whether to request verification.
+            tone: cautious
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_restore_log
+              - type: grant_clue
+                clue_id: clue_relation_match
+              - type: grant_card
+                card_id: separate_match
+              - type: increment_counter
+                key: consent_points
+                amount: 1
+              - type: set_flag
+                key: ledger_position_set
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_keep_public_copy
+            action_type: create_comment
+            target_id: thread_stpoman_ledger
+            title: null
+            body: At minimum, preserve slots, descriptions, and the restoration log. Only a verifiable public copy can stop the ledger from being quietly rewritten.
+            tone: publish
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_restore_log
+              - type: grant_clue
+                clue_id: clue_relation_match
+              - type: grant_card
+                card_id: preserve_ledger
+              - type: increment_counter
+                key: evidence_points
+                amount: 1
+              - type: set_flag
+                key: ledger_position_set
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_support_disposal
+            action_type: create_reply
+            target_id: comment_skip_destroy
+            title: null
+            body: The false matches have already harmed current residents. Recalling the parcels and deleting relationship data is the lowest-risk response.
+            tone: withdraw
+            conditions: []
+            effects:
+              - type: set_route
+                route: disposal
+              - type: set_flag
+                key: ledger_position_set
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: scene_recall
+        conditions:
+          - type: flag_equals
+            key: ledger_position_set
+            value: true
+
+  - id: scene_recall
+    entry_conditions:
+      - type: flag_equals
+        key: ledger_position_set
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_nco_recall
+    threads:
+      - id: thread_nco_recall
+        board_id: xunsheng_0623
+        author_id: nco13_bulletin
+        title: Disposal Notice Concerning the June 23 Historical Storage Misdelivery
+        body: |-
+          Review confirms that invalid restored data generated the relevant parcels; they do not constitute lawful deliveries. Recipients should schedule contactless recall before 12:00 tomorrow and must not continue opening, copying, or distributing enclosed material.
+
+          NCO13 will delete the incorrectly restored relationship data and delivery tasks. Further handling of historical property will prioritize security, privacy, and current registration.
+        timestamp: June 24, 11:40
+        status: pinned
+        comments:
+          - id: comment_fishy_recall
+            author_id: feifeiyu_fishy
+            body: "The Gazette requests clarification: why must an item list without identities also be deleted? Will people have a voluntary verification channel?"
+            timestamp: June 24, 11:48
+            replies: []
+            state: normal
+          - id: comment_early_deadline
+            author_id: early_tomorrow
+            body: There is less than a day between this notice and the deadline. Many recipients have not even logged in.
+            timestamp: June 24, 12:01
+            replies: []
+            state: normal
+    interaction_stage:
+      id: stage_answer_recall
+      interaction_limit: 1
+      show_budget: true
+      can_end_early: true
+      choice_set_ids: [choices_answer_recall]
+      on_end: []
+      on_end_if_empty:
+        - type: set_flag
+          key: ledger_destroyed
+          value: true
+    choice_sets:
+      - id: choices_answer_recall
+        prompt: The recall notice is compressing the investigation.
+        choices:
+          - id: choice_challenge_recall
+            action_type: create_reply
+            target_id: comment_fishy_recall
+            title: null
+            body: Ask for an extension and handle identity-relationship data separately from the anonymous item list. Deleting everything is not the only form of privacy protection.
+            tone: challenge
+            conditions:
+              - type: not
+                condition:
+                  type: route_equals
+                  route: disposal
+            effects:
+              - type: grant_clue
+                clue_id: clue_custody_deadline
+              - type: start_encounter
+                encounter_id: encounter_recall_notice
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_accept_recall
+            action_type: create_comment
+            target_id: thread_nco_recall
+            title: null
+            body: I support a blanket recall. Incorrectly restored data should not circulate further. Publish a deletion-completion record as well.
+            tone: support
+            conditions:
+              - type: route_equals
+                route: disposal
+            effects:
+              - type: set_flag
+                key: ledger_destroyed
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: scene_final_proposal
+        conditions:
+          - type: flag_equals
+            key: recall_challenged
+            value: true
+      - to: scene_unclaimed
+        conditions:
+          - type: flag_equals
+            key: ledger_destroyed
+            value: true
+      - to: scene_recall
+        conditions:
+          - type: flag_equals
+            key: recall_pressure
+            value: true
+
+  - id: scene_final_proposal
+    entry_conditions:
+      - type: flag_equals
+        key: recall_challenged
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_claim_proposal
+    threads:
+      - id: thread_claim_proposal
+        board_id: xunsheng_0623
+        author_id: feifeiyu_fishy
+        title: "Proposal: An Identity-Free Nancuo Property Claim Page"
+        body: |-
+          The proposal publishes only slot numbers and item descriptions. Applicants voluntarily provide details they know to separated reviewers; failed matches retain no identity data, and successful matches still leave any contact to the depositor or lawful successor.
+
+          This does not rebuild Nancuo or leave parcels with current residents. It only rejects “publish everything” and “destroy everything” as the only choices.
+        timestamp: June 24, 16:20
+        status: normal
+        comments:
+          - id: comment_stpoman_support
+            author_id: stpoman
+            body: I will provide the anonymous copy for third-party verification. The original ledger will not leave controlled custody.
+            timestamp: June 24, 16:27
+            replies: []
+            state: normal
+          - id: comment_dinner_choice
+            author_id: jinwan_chishenme
+            body: I will take 042 to verification, but I don't need to know who Xu was. Let whoever knows that soup decide for themselves.
+            timestamp: June 24, 16:31
+            replies: []
+            state: normal
+    interaction_stage:
+      id: stage_publish_claim_channel
+      interaction_limit: 1
+      show_budget: true
+      can_end_early: true
+      choice_set_ids: [choices_publish_claim_channel]
+      on_end: []
+      on_end_if_empty:
+        - type: set_flag
+          key: ledger_destroyed
+          value: true
+    choice_sets:
+      - id: choices_publish_claim_channel
+        prompt: This is the final publication of the issue and will determine its ending.
+        choices:
+          - id: choice_publish_voluntary_channel
+            action_type: create_post
+            target_id: xunsheng_0623
+            title: I support voluntary claims, not a public relationship list
+            body: Preserve an anonymous list, isolate identity verification, require people to apply themselves, and let anyone withdraw. Old belongings should not decide a person's past for them, but we can return that decision to the person.
+            tone: publish
+            conditions:
+              - type: has_clue
+                clue_id: clue_restore_log
+              - type: has_clue
+                clue_id: clue_relation_match
+              - type: has_clue
+                clue_id: clue_custody_deadline
+            effects:
+              - type: grant_card
+                card_id: request_consent
+              - type: start_encounter
+                encounter_id: encounter_claim_channel
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: scene_returned
+        conditions:
+          - type: flag_equals
+            key: voluntary_claim_approved
+            value: true
+      - to: scene_unclaimed
+        conditions:
+          - type: flag_equals
+            key: ledger_destroyed
+            value: true
+
+  - id: scene_returned
+    entry_conditions:
+      - type: flag_equals
+        key: voluntary_claim_approved
+        value: true
+    on_enter: []
+    threads:
+      - id: thread_returned_epilogue
+        board_id: xunsheng_0623
+        author_id: jinwan_chishenme
+        title: Someone recognized 042
+        body: |-
+          They only answered the question from the recipe's last page and never asked for my address. The recorder and book went back through the verification point. I kept one ticket—the original storage note said whoever found their route could keep one.
+
+          How much salt goes in the soup? They said, “Ask after it reaches the table.” I still don't understand, but this time I don't have to.
+        timestamp: June 27, 19:06
+        status: normal
+        comments: []
+    choice_sets: []
+    exits:
+      - to: ending:returned_to_owner
+        conditions: []
+    on_exit:
+      - type: complete_story
+        story_id: xunsheng_0623
+        ending_id: returned_to_owner
+
+  - id: scene_unclaimed
+    entry_conditions:
+      - type: flag_equals
+        key: ledger_destroyed
+        value: true
+    on_enter: []
+    threads:
+      - id: thread_unclaimed_epilogue
+        board_id: xunsheng_0623
+        author_id: nco13_bulletin
+        title: Historical Storage Data Disposal Complete
+        body: |-
+          Related delivery tasks, relationship matches, and residual ledger copies have been deleted. Uncollected property has entered standard disposal. This thread no longer accepts replies.
+        timestamp: June 25, 12:04
+        status: locked
+        comments:
+          - id: comment_deleted_fishy
+            author_id: feifeiyu_fishy
+            body: This reply has been deleted.
+            timestamp: June 25, 12:05
+            replies: []
+            state: deleted
+    choice_sets: []
+    exits:
+      - to: ending:unclaimed
+        conditions: []
+    on_exit:
+      - type: complete_story
+        story_id: xunsheng_0623
+        ending_id: unclaimed

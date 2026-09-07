@@ -1,0 +1,374 @@
+meta:
+  story_id: xunsheng_0623
+  chapter_id: misdelivery
+  sequence: 1
+  locale: zh-CN
+  title: 错投
+  summary: 一只没有寄件人的旧纸箱，让综合讨论里的普通闲聊变成了一场公开调查。
+  content_version: 1.1.0
+  license: CC-BY-SA-4.0
+
+accounts:
+  - feifeiyu_fishy
+  - jinwan_chishenme
+  - stpoman
+  - nco13_bulletin
+  - caramel_less_ice
+  - windbell_7
+  - early_tomorrow
+  - old_keyboard
+  - mori
+  - skip_the_queue
+
+clues:
+  - id: clue_old_label
+    name: 旧式面单
+    description: 面单使用已经停用的前浔地址格式，墨迹却很新。
+  - id: clue_batch_route
+    name: 相同路由
+    description: 三件无主件经过同一条自动分拣路由，末端记录指向已删除的站点代码。
+  - id: clue_hidden_number
+    name: 遮盖编号
+    description: 纸箱夹层里留有手写编号 NC13-NC-042，可能属于旧设施清册。
+
+cards:
+  - id: read_waybill
+    name: 核对面单
+    type: evidence
+    cost: 1
+    rules_text: 造成5点防线伤害；若持有“旧式面单”，再造成2点。
+  - id: redact_address
+    name: 遮住地址
+    type: protection
+    cost: 1
+    rules_text: 获得6点护盾，并移除1层噪声。
+
+encounters:
+  - id: encounter_misdelivery_rumor
+    name: 错投传言
+    player_credibility: 30
+    enemy_integrity: 20
+    enemy_pattern:
+      - turn: 1
+        intent: 混淆新旧面单
+        damage: 4
+      - turn: 2
+        intent: 扩散住址截图
+        damage: 6
+        applies: noise
+      - turn: 3
+        intent: 断言只是恶作剧
+        damage: 7
+    reward_choices:
+      - read_waybill
+      - redact_address
+    victory_effects:
+      - type: set_flag
+        key: rumor_checked
+        value: true
+    defeat_effects:
+      - type: set_flag
+        key: rumor_retry_available
+        value: true
+
+scenes:
+  - id: scene_first_parcel
+    entry_conditions: []
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_first_parcel
+    threads:
+      - id: thread_first_parcel
+        board_id: general_discussion
+        author_id: jinwan_chishenme
+        title: 有人收到过不是自己的快递吗？寄件人还是空的
+        body: |-
+          晚饭前在门口看到一个旧纸箱，收件地址是我家，收件人那一栏只剩一个“许”字。
+
+          箱子里是一只用坏的录音笔、两张已经褪色的车票，还有一本写到一半的菜谱。我搬来三年，家里没人姓许。快递记录显示今天才进站，但面单上印着“前浔南厝”。地图里根本搜不到这个地方。
+
+          我把住址和单号遮住了。先问一句，这东西该交给谁？
+        timestamp: 6月23日 18:42
+        status: normal
+        comments:
+          - id: comment_first_reaction
+            author_id: caramel_less_ice
+            body: 我下午也收到一个，里面是儿童雨衣。客服只查到末端派送，查不到寄件端。
+            timestamp: 6月23日 18:47
+            replies: []
+            state: normal
+          - id: comment_privacy_warning
+            author_id: old_keyboard
+            body: 先别把完整面单发出来。现在地址能和互认身份串起来，旧东西也可能是隐私。
+            timestamp: 6月23日 18:51
+            replies:
+              - id: reply_fishy_arrives
+                parent_id: comment_privacy_warning
+                author_id: feifeiyu_fishy
+                body: 同意。浔声小报可以代为汇总，先只收遮盖后的信息。
+                timestamp: 6月23日 18:55
+                state: normal
+            state: normal
+    interaction_stage:
+      id: stage_first_response
+      interaction_limit: 1
+      show_budget: false
+      can_end_early: true
+      choice_set_ids: [choices_first_response]
+      on_end:
+        - type: set_flag
+          key: first_response_posted
+          value: true
+      on_end_if_empty:
+        - type: grant_clue
+          clue_id: clue_old_label
+    choice_sets:
+      - id: choices_first_response
+        prompt: 你准备如何回应首帖？
+        choices:
+          - id: choice_check_label
+            action_type: create_comment
+            target_id: thread_first_parcel
+            title: null
+            body: 先核对面单格式和分拣时间。请只补充纸张样式、站点代码和进入本区的时间，不要发姓名与地址。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_old_label
+              - type: grant_card
+                card_id: read_waybill
+              - type: set_flag
+                key: first_response_posted
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_protect_recipient
+            action_type: create_reply
+            target_id: comment_privacy_warning
+            title: null
+            body: 旧收件人和现住户都不该被直接曝光。建议把照片交给小报，由编辑先做脱敏整理。
+            tone: cautious
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_old_label
+              - type: grant_card
+                card_id: redact_address
+              - type: set_flag
+                key: first_response_posted
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_ask_for_more
+            action_type: create_comment
+            target_id: thread_first_parcel
+            title: null
+            body: 一件可能是错投，连续两件就值得比对。还有人收到的话，只报箱内物品类别和派送时间。
+            tone: challenge
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_old_label
+              - type: increment_counter
+                key: public_calls
+                amount: 1
+              - type: set_flag
+                key: first_response_posted
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: scene_more_parcels
+        conditions:
+          - type: flag_equals
+            key: first_response_posted
+            value: true
+
+  - id: scene_more_parcels
+    entry_conditions:
+      - type: flag_equals
+        key: first_response_posted
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_parcel_summary
+    threads:
+      - id: thread_parcel_summary
+        board_id: xunsheng_0623
+        author_id: feifeiyu_fishy
+        title: 浔声小报｜目前确认的三件“无主件”
+        body: |-
+          暂时用“无主件”称呼这批包裹。三件物品分别是录音笔与菜谱、儿童雨衣、旧维修工具。它们今天从不同快递员手中送达，却共享一段无法查询来源的分拣路由。
+
+          面单采用前浔时期的地址写法，站点字段被清空。请不要公开旧姓名、现住址或身份匹配截图。我们需要确认这是普通数据错误，还是有人借旧数据寻找现在的居民。
+        timestamp: 6月23日 19:26
+        status: pinned
+        comments:
+          - id: comment_windbell_route
+            author_id: windbell_7
+            body: 我比对了三个时间，进城区之前的路由完全一样，中间都空了十一分钟。
+            timestamp: 6月23日 19:31
+            replies: []
+            state: normal
+          - id: comment_mori_old_name
+            author_id: mori
+            body: 南厝不是站名吗？我家旧纸质地图上有，但那一页被贴过新的道路编号。
+            timestamp: 6月23日 19:38
+            replies: []
+            state: normal
+          - id: comment_noise_claim
+            author_id: skip_the_queue
+            body: 这不就是小报自己寄的？先造话题再让大家交数据，经典套路。
+            timestamp: 6月23日 19:44
+            replies: []
+            state: normal
+    interaction_stage:
+      id: stage_verify_rumor
+      interaction_limit: 1
+      show_budget: false
+      can_end_early: true
+      choice_set_ids: [choices_start_verification]
+      on_end: []
+      on_end_if_empty:
+        - type: grant_clue
+          clue_id: clue_batch_route
+        - type: start_encounter
+          encounter_id: encounter_misdelivery_rumor
+    choice_sets:
+      - id: choices_start_verification
+        prompt: 传言正在盖过有效信息。选择一种调查方式进入信息攻防。
+        choices:
+          - id: choice_publish_route_comparison
+            action_type: create_reply
+            target_id: comment_windbell_route
+            title: null
+            body: 把时间轴留下，隐去单号。只要证明路由相同，就能先排除三次独立错投。
+            tone: publish
+            conditions:
+              - type: has_clue
+                clue_id: clue_old_label
+            effects:
+              - type: grant_clue
+                clue_id: clue_batch_route
+              - type: start_encounter
+                encounter_id: encounter_misdelivery_rumor
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_defend_summary
+            action_type: create_reply
+            target_id: comment_noise_claim
+            title: null
+            body: 怀疑小报没有问题，但结论也需要证据。先核对快递路由，不要求任何人提交身份信息。
+            tone: cautious
+            conditions:
+              - type: has_clue
+                clue_id: clue_old_label
+            effects:
+              - type: grant_clue
+                clue_id: clue_batch_route
+              - type: start_encounter
+                encounter_id: encounter_misdelivery_rumor
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: scene_deleted_code
+        conditions:
+          - type: encounter_result
+            encounter_id: encounter_misdelivery_rumor
+            result: victory
+      - to: scene_more_parcels
+        conditions:
+          - type: encounter_result
+            encounter_id: encounter_misdelivery_rumor
+            result: defeat
+
+  - id: scene_deleted_code
+    entry_conditions:
+      - type: flag_equals
+        key: rumor_checked
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_hidden_code
+    threads:
+      - id: thread_hidden_code
+        board_id: xunsheng_0623
+        author_id: jinwan_chishenme
+        title: 更新：纸箱夹层里还有一行编号
+        body: |-
+          拆平纸箱准备收好时，我在夹层里看到一行铅笔字：NC13-NC-042。录音笔里没有声音，电池槽下也写着同样的 042。
+
+          我不会继续拆里面的东西。编号照片已经交给小报，原件先放在我这里。
+        timestamp: 6月23日 20:17
+        status: normal
+        comments:
+          - id: comment_stpoman_first
+            author_id: stpoman
+            body: NC 不是 Node City。旧清册里它表示“南厝”。042 是寄存格，不是住址。那地方早就拆了。
+            timestamp: 6月23日 20:23
+            replies:
+              - id: reply_fishy_to_stpoman
+                parent_id: comment_stpoman_first
+                author_id: feifeiyu_fishy
+                body: 你接触过这套清册？如果愿意，请只说明设施用途，不要在公开回复里发人员名单。
+                timestamp: 6月23日 20:25
+                state: normal
+            state: normal
+    interaction_stage:
+      id: stage_follow_nancuo
+      interaction_limit: 1
+      show_budget: false
+      can_end_early: true
+      choice_set_ids: [choices_close_chapter]
+      on_end:
+        - type: complete_chapter
+          chapter_id: misdelivery
+      on_end_if_empty:
+        - type: grant_clue
+          clue_id: clue_hidden_number
+    choice_sets:
+      - id: choices_close_chapter
+        prompt: 你准备怎样把调查引向南厝？
+        choices:
+          - id: choice_reply_stpoman_privately
+            action_type: create_reply
+            target_id: comment_stpoman_first
+            title: null
+            body: 我们先核对格号和物品，不公开人名。请告诉小报哪里还能找到完整清册。
+            tone: cautious
+            conditions:
+              - type: has_clue
+                clue_id: clue_batch_route
+            effects:
+              - type: grant_clue
+                clue_id: clue_hidden_number
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_post_public_question
+            action_type: create_comment
+            target_id: thread_hidden_code
+            title: null
+            body: 目前只能确认“南厝”是旧清册代码。请不要自行搜索旧住户；下一步应先找到清册保管记录。
+            tone: investigate
+            conditions:
+              - type: has_clue
+                clue_id: clue_batch_route
+            effects:
+              - type: grant_clue
+                clue_id: clue_hidden_number
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: chapter:signed_for
+        conditions:
+          - type: flag_equals
+            key: chapter_misdelivery_completed
+            value: true

@@ -1,0 +1,374 @@
+meta:
+  story_id: xunsheng_0623
+  chapter_id: misdelivery
+  sequence: 1
+  locale: en-US
+  title: Misdelivery
+  summary: An old parcel with no sender turns ordinary chat in General Discussion into a public investigation.
+  content_version: 1.1.0
+  license: CC-BY-SA-4.0
+
+accounts:
+  - feifeiyu_fishy
+  - jinwan_chishenme
+  - stpoman
+  - nco13_bulletin
+  - caramel_less_ice
+  - windbell_7
+  - early_tomorrow
+  - old_keyboard
+  - mori
+  - skip_the_queue
+
+clues:
+  - id: clue_old_label
+    name: Old Shipping Label
+    description: The label uses a discontinued Qianxun address format, but its ink is fresh.
+  - id: clue_batch_route
+    name: Shared Route
+    description: Three ownerless parcels followed the same automated sorting route, ending at a deleted station code.
+  - id: clue_hidden_number
+    name: Hidden Number
+    description: NC13-NC-042 is penciled inside the carton and may refer to an old facility ledger.
+
+cards:
+  - id: read_waybill
+    name: Check the Label
+    type: evidence
+    cost: 1
+    rules_text: Deal 5 Integrity damage; deal 2 more if you have Old Shipping Label.
+  - id: redact_address
+    name: Redact the Address
+    type: protection
+    cost: 1
+    rules_text: Gain 6 Shield and remove 1 Noise.
+
+encounters:
+  - id: encounter_misdelivery_rumor
+    name: Misdelivery Rumors
+    player_credibility: 30
+    enemy_integrity: 20
+    enemy_pattern:
+      - turn: 1
+        intent: Confuse old and new labels
+        damage: 4
+      - turn: 2
+        intent: Spread address screenshots
+        damage: 6
+        applies: noise
+      - turn: 3
+        intent: Dismiss it as a prank
+        damage: 7
+    reward_choices:
+      - read_waybill
+      - redact_address
+    victory_effects:
+      - type: set_flag
+        key: rumor_checked
+        value: true
+    defeat_effects:
+      - type: set_flag
+        key: rumor_retry_available
+        value: true
+
+scenes:
+  - id: scene_first_parcel
+    entry_conditions: []
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_first_parcel
+    threads:
+      - id: thread_first_parcel
+        board_id: general_discussion
+        author_id: jinwan_chishenme
+        title: Did anyone else get a delivery that isn't theirs? No sender either
+        body: |-
+          I found an old carton outside before dinner. My address is on it, but only the surname Xu remains in the recipient field.
+
+          Inside are a broken voice recorder, two faded transit tickets, and a half-filled recipe book. I've lived here for three years and nobody in my family is named Xu. Tracking says it entered the network today, but the label says “Qianxun, Nancuo.” That place does not exist on any map.
+
+          I covered my address and tracking number. First question: who should receive this?
+        timestamp: June 23, 18:42
+        status: normal
+        comments:
+          - id: comment_first_reaction
+            author_id: caramel_less_ice
+            body: I got one this afternoon too. A child's raincoat. Support can see last-mile delivery but nothing at the sender's end.
+            timestamp: June 23, 18:47
+            replies: []
+            state: normal
+          - id: comment_privacy_warning
+            author_id: old_keyboard
+            body: Don't post the full label. Addresses can be linked to mutual-recognition identities now. Old belongings can still expose private data.
+            timestamp: June 23, 18:51
+            replies:
+              - id: reply_fishy_arrives
+                parent_id: comment_privacy_warning
+                author_id: feifeiyu_fishy
+                body: Agreed. Xunsheng Gazette can collect redacted details first.
+                timestamp: June 23, 18:55
+                state: normal
+            state: normal
+    interaction_stage:
+      id: stage_first_response
+      interaction_limit: 1
+      show_budget: false
+      can_end_early: true
+      choice_set_ids: [choices_first_response]
+      on_end:
+        - type: set_flag
+          key: first_response_posted
+          value: true
+      on_end_if_empty:
+        - type: grant_clue
+          clue_id: clue_old_label
+    choice_sets:
+      - id: choices_first_response
+        prompt: How will you respond to the opening post?
+        choices:
+          - id: choice_check_label
+            action_type: create_comment
+            target_id: thread_first_parcel
+            title: null
+            body: Start with the label format and sorting time. Please share only the paper style, station code, and time it entered this district—not names or addresses.
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_old_label
+              - type: grant_card
+                card_id: read_waybill
+              - type: set_flag
+                key: first_response_posted
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_protect_recipient
+            action_type: create_reply
+            target_id: comment_privacy_warning
+            title: null
+            body: Neither the former recipient nor the current resident should be exposed. Send the photos to the Gazette so an editor can redact them first.
+            tone: cautious
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_old_label
+              - type: grant_card
+                card_id: redact_address
+              - type: set_flag
+                key: first_response_posted
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_ask_for_more
+            action_type: create_comment
+            target_id: thread_first_parcel
+            title: null
+            body: One parcel may be a mistake. Two deserve comparison. If anyone else received one, share only the item category and delivery time.
+            tone: challenge
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_old_label
+              - type: increment_counter
+                key: public_calls
+                amount: 1
+              - type: set_flag
+                key: first_response_posted
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: scene_more_parcels
+        conditions:
+          - type: flag_equals
+            key: first_response_posted
+            value: true
+
+  - id: scene_more_parcels
+    entry_conditions:
+      - type: flag_equals
+        key: first_response_posted
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_parcel_summary
+    threads:
+      - id: thread_parcel_summary
+        board_id: xunsheng_0623
+        author_id: feifeiyu_fishy
+        title: Xunsheng Gazette | Three Confirmed “Ownerless Parcels”
+        body: |-
+          For now, we are calling them “ownerless parcels.” The three contain a recorder and recipe book, a child's raincoat, and old repair tools. Different couriers delivered them today, but all share a sorting route whose origin cannot be queried.
+
+          The labels use Qianxun-era addresses and their station fields are blank. Do not publish old names, current addresses, or identity-match screenshots. We need to learn whether this is an ordinary data fault or someone using old records to find current residents.
+        timestamp: June 23, 19:26
+        status: pinned
+        comments:
+          - id: comment_windbell_route
+            author_id: windbell_7
+            body: I compared all three times. The route before entering the city is identical, including the same eleven-minute gap.
+            timestamp: June 23, 19:31
+            replies: []
+            state: normal
+          - id: comment_mori_old_name
+            author_id: mori
+            body: Wasn't Nancuo a station? It's on my family's old paper map, but that page has newer road numbers pasted over it.
+            timestamp: June 23, 19:38
+            replies: []
+            state: normal
+          - id: comment_noise_claim
+            author_id: skip_the_queue
+            body: Isn't the Gazette mailing these itself? Manufacture a story, then ask everyone for data. Classic.
+            timestamp: June 23, 19:44
+            replies: []
+            state: normal
+    interaction_stage:
+      id: stage_verify_rumor
+      interaction_limit: 1
+      show_budget: false
+      can_end_early: true
+      choice_set_ids: [choices_start_verification]
+      on_end: []
+      on_end_if_empty:
+        - type: grant_clue
+          clue_id: clue_batch_route
+        - type: start_encounter
+          encounter_id: encounter_misdelivery_rumor
+    choice_sets:
+      - id: choices_start_verification
+        prompt: Rumor is overtaking useful information. Choose an approach for the information battle.
+        choices:
+          - id: choice_publish_route_comparison
+            action_type: create_reply
+            target_id: comment_windbell_route
+            title: null
+            body: Keep the timeline and hide the tracking numbers. Proving a shared route is enough to rule out three unrelated mistakes.
+            tone: publish
+            conditions:
+              - type: has_clue
+                clue_id: clue_old_label
+            effects:
+              - type: grant_clue
+                clue_id: clue_batch_route
+              - type: start_encounter
+                encounter_id: encounter_misdelivery_rumor
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_defend_summary
+            action_type: create_reply
+            target_id: comment_noise_claim
+            title: null
+            body: Questioning the Gazette is fair, but conclusions need evidence too. Check courier routes first; nobody is being asked for identity data.
+            tone: cautious
+            conditions:
+              - type: has_clue
+                clue_id: clue_old_label
+            effects:
+              - type: grant_clue
+                clue_id: clue_batch_route
+              - type: start_encounter
+                encounter_id: encounter_misdelivery_rumor
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: scene_deleted_code
+        conditions:
+          - type: encounter_result
+            encounter_id: encounter_misdelivery_rumor
+            result: victory
+      - to: scene_more_parcels
+        conditions:
+          - type: encounter_result
+            encounter_id: encounter_misdelivery_rumor
+            result: defeat
+
+  - id: scene_deleted_code
+    entry_conditions:
+      - type: flag_equals
+        key: rumor_checked
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_hidden_code
+    threads:
+      - id: thread_hidden_code
+        board_id: xunsheng_0623
+        author_id: jinwan_chishenme
+        title: "Update: there was another number inside the carton"
+        body: |-
+          While flattening the box for storage, I found a penciled line inside: NC13-NC-042. The recorder contains no audio, but 042 is written under its battery tray too.
+
+          I will not take anything else apart. The Gazette has the photo; I am keeping the original safe.
+        timestamp: June 23, 20:17
+        status: normal
+        comments:
+          - id: comment_stpoman_first
+            author_id: stpoman
+            body: NC doesn't mean Node City there. In the old ledger it meant Nancuo. 042 is a storage slot, not an address. That place was demolished years ago.
+            timestamp: June 23, 20:23
+            replies:
+              - id: reply_fishy_to_stpoman
+                parent_id: comment_stpoman_first
+                author_id: feifeiyu_fishy
+                body: Did you work with that ledger? If you're willing, describe the facility only. Do not post personnel records publicly.
+                timestamp: June 23, 20:25
+                state: normal
+            state: normal
+    interaction_stage:
+      id: stage_follow_nancuo
+      interaction_limit: 1
+      show_budget: false
+      can_end_early: true
+      choice_set_ids: [choices_close_chapter]
+      on_end:
+        - type: complete_chapter
+          chapter_id: misdelivery
+      on_end_if_empty:
+        - type: grant_clue
+          clue_id: clue_hidden_number
+    choice_sets:
+      - id: choices_close_chapter
+        prompt: How will you direct the investigation toward Nancuo?
+        choices:
+          - id: choice_reply_stpoman_privately
+            action_type: create_reply
+            target_id: comment_stpoman_first
+            title: null
+            body: Let's verify slots and items without publishing names. Tell the Gazette where the complete ledger might still exist.
+            tone: cautious
+            conditions:
+              - type: has_clue
+                clue_id: clue_batch_route
+            effects:
+              - type: grant_clue
+                clue_id: clue_hidden_number
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_post_public_question
+            action_type: create_comment
+            target_id: thread_hidden_code
+            title: null
+            body: We can only confirm that “Nancuo” is an old ledger code. Do not search for former residents yourselves. First we need the ledger's custody record.
+            tone: investigate
+            conditions:
+              - type: has_clue
+                clue_id: clue_batch_route
+            effects:
+              - type: grant_clue
+                clue_id: clue_hidden_number
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: chapter:signed_for
+        conditions:
+          - type: flag_equals
+            key: chapter_misdelivery_completed
+            value: true

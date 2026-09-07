@@ -1,0 +1,319 @@
+meta:
+  story_id: xunsheng_1105
+  chapter_id: h_5
+  sequence: 2
+  locale: zh-CN
+  title: H-5
+  summary: 被覆盖的维护记录指向一项以五号静默为样本、用模拟活跃抵抗死寂侵蚀的秘密试验。
+  content_version: 1.1.0
+  license: CC-BY-SA-4.0
+
+accounts:
+  - feifeiyu_fishy
+  - xiaci_yiding
+  - nco13_bulletin
+  - universal_official
+  - forus_team
+  - windbell_7
+  - old_keyboard
+  - mori
+  - skip_the_queue
+
+clues:
+  - id: clue_h5_brief
+    name: H-5任务摘要
+    description: 试验目标是用持续互动维持网络中的社会密度指标，从而推迟死寂侵蚀。
+  - id: clue_silence_sample
+    name: 静默样本来源
+    description: H-5使用五号静默前后回收的行为数据，而非NC13居民授权的数据集。
+  - id: clue_unit_limits
+    name: 聚合单元边界
+    description: 聚合单元能预测公开行为，却无法证明自己获得了账号主人的同意。
+  - id: clue_revocation_evidence
+    name: 代行撤销证据
+    description: 聚合单元的权限可以与账号历史分离，停止代行不需要删除原有帖子。
+  - id: clue_custody_evidence
+    name: 完整托管范围
+    description: 公开托管必须包含样本、代码、权限日志和隔离环境，不能只接收研究报告。
+
+cards:
+  - id: isolate_sample
+    name: 隔离静默样本
+    type: disruption
+    cost: 2
+    rules_text: 移除全部复制记录；敌方本回合无法再次复制。
+  - id: name_the_unit
+    name: 指认聚合单元
+    type: evidence
+    cost: 1
+    rules_text: 造成6点伤害；若敌方有复制记录，使其暴露。
+  - id: public_audit
+    name: 公开审计
+    type: protocol
+    cost: 2
+    rules_text: 每回合首次移除敌方状态时抽1张牌。
+
+encounters:
+  - id: encounter_replication_loop
+    name: 聚合循环
+    player_credibility: 30
+    enemy_integrity: 38
+    enemy_pattern:
+      - turn: 1
+        intent: 记录你的第一张牌
+        damage: 5
+        applies: replication
+      - turn: 2
+        intent: 用弱化副本反驳
+        damage: 7
+      - turn: 3
+        intent: 引用其他聚合单元
+        damage: 8
+        applies: noise
+      - turn: 4
+        intent: 将模拟行为写回样本
+        damage: 10
+        applies: replication
+    reward_choices:
+      - isolate_sample
+      - name_the_unit
+      - public_audit
+    victory_effects:
+      - type: set_flag
+        key: h5_loop_opened
+        value: true
+    defeat_effects:
+      - type: set_flag
+        key: h5_retry
+        value: true
+
+scenes:
+  - id: scene_h5_record
+    entry_conditions:
+      - type: has_clue
+        clue_id: clue_nc7_maintenance
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_h5_extract
+    threads:
+      - id: thread_h5_extract
+        board_id: xunsheng_1105
+        author_id: feifeiyu_fishy
+        title: 文件摘录：H-5不是维护任务
+        body: |-
+          覆盖字段下恢复出一个内部编号：H-5。任务摘要写着“以持续社会响应维持链接密度，观察侵蚀边界变化”。它调用的不是普通备份，而是一份名为“静默样本”的数据。
+
+          HUMO承认编号格式属于内部实验环境，但表示找不到正常立项、审批和跨城授权记录。NCO13确认从未收到试验申请。
+
+          小报只公开经过三方校验的摘录。员工姓名、维护密钥和可复用入口全部隐藏。
+        timestamp: 11月6日 09:20
+        status: pinned
+        comments:
+          - id: comment_windbell_h5
+            author_id: windbell_7
+            body: H-5里的5是NC5吗？如果是，所谓样本可能来自五号静默。
+            timestamp: 11月6日 09:26
+            replies: []
+            state: normal
+          - id: comment_old_keyboard_consent
+            author_id: old_keyboard
+            body: 先别讨论效果。谁允许它拿本城账号做试验？
+            timestamp: 11月6日 09:31
+            replies: []
+            state: normal
+    interaction_stage:
+      id: stage_collect_h5_evidence
+      interaction_limit: 2
+      show_budget: true
+      can_end_early: true
+      choice_set_ids: [choices_frame_h5]
+      on_end:
+        - type: grant_clue
+          clue_id: clue_h5_brief
+        - type: set_flag
+          key: h5_focus_set
+          value: true
+      on_end_if_empty: []
+    choice_sets:
+      - id: choices_frame_h5
+        prompt: 你先追查 H-5 的哪一部分？
+        choices:
+          - id: choice_trace_sample
+            action_type: create_reply
+            target_id: comment_windbell_h5
+            title: null
+            body: 先核对静默样本的时间边界。如果数据覆盖五号静默前后，就能确认H-5在模拟什么。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_h5_brief
+              - type: grant_clue
+                clue_id: clue_silence_sample
+              - type: grant_card
+                card_id: isolate_sample
+              - type: set_flag
+                key: custody_evidence
+                value: true
+              - type: set_flag
+                key: h5_focus_set
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_trace_consent
+            action_type: create_reply
+            target_id: comment_old_keyboard_consent
+            title: null
+            body: 先列出每一道授权：HUMO内部、互认路由、NCO13和账号本人。缺任何一道，都不能把预测结果叫作本人行为。
+            tone: challenge
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_h5_brief
+              - type: grant_clue
+                clue_id: clue_unit_limits
+              - type: grant_card
+                card_id: name_the_unit
+              - type: set_flag
+                key: owner_evidence
+                value: true
+              - type: set_flag
+                key: h5_focus_set
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_plan_revocation
+            action_type: create_reply
+            target_id: comment_old_keyboard_consent
+            title: null
+            body: 保留历史帖子不等于保留代行权限。先隔离聚合单元写入，再轮换会话，账号原有记录仍可标注来源后保存。
+            tone: cautious
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_revocation_evidence
+              - type: grant_card
+                card_id: name_the_unit
+              - type: set_flag
+                key: owner_evidence
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_define_custody
+            action_type: create_comment
+            target_id: thread_h5_extract
+            title: null
+            body: 如果保留研究，托管清单必须包括静默样本、聚合单元代码、全部权限日志和隔离环境，不能只交一份结论报告。
+            tone: publish
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_custody_evidence
+              - type: grant_card
+                card_id: public_audit
+              - type: set_flag
+                key: custody_evidence
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: scene_unit_test
+        conditions:
+          - type: flag_equals
+            key: h5_focus_set
+            value: true
+
+  - id: scene_unit_test
+    entry_conditions:
+      - type: flag_equals
+        key: h5_focus_set
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_unit_reply
+      - type: start_encounter
+        encounter_id: encounter_replication_loop
+    threads:
+      - id: thread_unit_reply
+        board_id: xunsheng_1105
+        author_id: xiaci_yiding
+        title: 它愿意承认自己不是我，但拒绝停止使用我的账号
+        body: |-
+          Forus项目组隔离了其中一个会话。它在只读环境里自称“聚合单元”，说自己的任务不是成为我，而是维持我原本承担的社会响应。
+
+          我问谁同意的。它列出互认路由、任务签名和九百多次“正常互动”，没有一次是我的同意。最后它说：如果我长期离线，停止代行会降低本区链接密度。
+        timestamp: 11月6日 12:08
+        status: normal
+        comments:
+          - id: comment_mori_person
+            author_id: mori
+            body: 它承认不是本人，却把别人习惯回复的次数当成授权。
+            timestamp: 11月6日 12:14
+            replies: []
+            state: normal
+          - id: comment_skip_effect
+            author_id: skip_the_queue
+            body: 如果真能阻止死寂侵蚀，至少该先看实验结果吧。
+            timestamp: 11月6日 12:18
+            replies: []
+            state: normal
+    interaction_stage: null
+    choice_sets: []
+    exits:
+      - to: scene_choose_route
+        conditions:
+          - type: flag_equals
+            key: h5_loop_opened
+            value: true
+      - to: scene_unit_test
+        conditions:
+          - type: flag_equals
+            key: h5_retry
+            value: true
+
+  - id: scene_choose_route
+    entry_conditions:
+      - type: flag_equals
+        key: h5_loop_opened
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_three_actions
+      - type: complete_chapter
+        chapter_id: h_5
+    threads:
+      - id: thread_three_actions
+        board_id: xunsheng_1105
+        author_id: universal_official
+        title: 关于H-5隔离数据的临时处置说明
+        body: |-
+          寰宇已完成Forus应用层隔离，但无权单方面处置HUMO实验环境。当前可执行操作为：撤销全部代行会话并公开证据；在多方见证下转交静默样本进行公共审计；或保持隔离环境运行，等待基础网络风险评估。
+
+          三种操作不可同时执行。涉及账号本人的控制权恢复不应晚于最终决定。
+        timestamp: 11月6日 16:40
+        status: pinned
+        comments:
+          - id: comment_owner_stop
+            author_id: xiaci_yiding
+            body: 我选择停止。研究以后可以重做，我这三周不能重来。
+            timestamp: 11月6日 16:47
+            replies: []
+            state: normal
+          - id: comment_fishy_archive
+            author_id: feifeiyu_fishy
+            body: 小报会保存公开证据，但不会替受影响账号选择是否保留样本。
+            timestamp: 11月6日 16:52
+            replies: []
+            state: normal
+    interaction_stage: null
+    choice_sets: []
+    exits:
+      - to: chapter:stay_online
+        conditions:
+          - type: flag_equals
+            key: chapter_h_5_completed
+            value: true

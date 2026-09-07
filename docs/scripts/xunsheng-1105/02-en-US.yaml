@@ -1,0 +1,319 @@
+meta:
+  story_id: xunsheng_1105
+  chapter_id: h_5
+  sequence: 2
+  locale: en-US
+  title: H-5
+  summary: Overwritten maintenance records reveal a secret experiment based on the Silence of Five, using simulated activity to resist Dead Data Erosion.
+  content_version: 1.1.0
+  license: CC-BY-SA-4.0
+
+accounts:
+  - feifeiyu_fishy
+  - xiaci_yiding
+  - nco13_bulletin
+  - universal_official
+  - forus_team
+  - windbell_7
+  - old_keyboard
+  - mori
+  - skip_the_queue
+
+clues:
+  - id: clue_h5_brief
+    name: H-5 Task Brief
+    description: The experiment maintains social-density metrics through continuous interaction to delay Dead Data Erosion.
+  - id: clue_silence_sample
+    name: Silence Sample Origin
+    description: H-5 uses behavior recovered around the Silence of Five, not a dataset authorized by NC13 residents.
+  - id: clue_unit_limits
+    name: Aggregate Unit Limits
+    description: Aggregate Units can predict public behavior but cannot prove that an account owner consented.
+  - id: clue_revocation_evidence
+    name: Delegation Revocation Evidence
+    description: Aggregate Unit permissions can be separated from account history; stopping delegation does not require deleting existing posts.
+  - id: clue_custody_evidence
+    name: Complete Custody Scope
+    description: Public custody must include the sample, code, permission logs, and isolated environment—not only a research report.
+
+cards:
+  - id: isolate_sample
+    name: Isolate the Silence Sample
+    type: disruption
+    cost: 2
+    rules_text: Remove all replication records; the enemy cannot replicate again this turn.
+  - id: name_the_unit
+    name: Identify the Aggregate Unit
+    type: evidence
+    cost: 1
+    rules_text: Deal 6 damage; if the enemy has a replication record, apply Exposed.
+  - id: public_audit
+    name: Public Audit
+    type: protocol
+    cost: 2
+    rules_text: Draw 1 card the first time you remove an enemy status each turn.
+
+encounters:
+  - id: encounter_replication_loop
+    name: Aggregation Loop
+    player_credibility: 30
+    enemy_integrity: 38
+    enemy_pattern:
+      - turn: 1
+        intent: Record your first card
+        damage: 5
+        applies: replication
+      - turn: 2
+        intent: Answer with a weakened copy
+        damage: 7
+      - turn: 3
+        intent: Cite other Aggregate Units
+        damage: 8
+        applies: noise
+      - turn: 4
+        intent: Write simulated behavior into the sample
+        damage: 10
+        applies: replication
+    reward_choices:
+      - isolate_sample
+      - name_the_unit
+      - public_audit
+    victory_effects:
+      - type: set_flag
+        key: h5_loop_opened
+        value: true
+    defeat_effects:
+      - type: set_flag
+        key: h5_retry
+        value: true
+
+scenes:
+  - id: scene_h5_record
+    entry_conditions:
+      - type: has_clue
+        clue_id: clue_nc7_maintenance
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_h5_extract
+    threads:
+      - id: thread_h5_extract
+        board_id: xunsheng_1105
+        author_id: feifeiyu_fishy
+        title: "Document Extract: H-5 Was Not a Maintenance Task"
+        body: |-
+          One internal code was recovered beneath the overwritten field: H-5. Its brief reads, “Maintain link density through continuous social response; observe changes at the erosion boundary.” It calls not a normal backup but a dataset named the “Silence Sample.”
+
+          HUMO acknowledges that the code format belongs to an internal experimental environment, but can find no normal initiation, approval, or cross-city authorization. NCO13 confirms it never received an experiment request.
+
+          The Gazette is publishing only extracts verified by three parties. Employee names, maintenance keys, and reusable entry points are hidden.
+        timestamp: November 6, 09:20
+        status: pinned
+        comments:
+          - id: comment_windbell_h5
+            author_id: windbell_7
+            body: Does the 5 in H-5 mean NC5? If so, the sample may come from the Silence of Five.
+            timestamp: November 6, 09:26
+            replies: []
+            state: normal
+          - id: comment_old_keyboard_consent
+            author_id: old_keyboard
+            body: Don't debate results yet. Who allowed it to experiment on this city's accounts?
+            timestamp: November 6, 09:31
+            replies: []
+            state: normal
+    interaction_stage:
+      id: stage_collect_h5_evidence
+      interaction_limit: 2
+      show_budget: true
+      can_end_early: true
+      choice_set_ids: [choices_frame_h5]
+      on_end:
+        - type: grant_clue
+          clue_id: clue_h5_brief
+        - type: set_flag
+          key: h5_focus_set
+          value: true
+      on_end_if_empty: []
+    choice_sets:
+      - id: choices_frame_h5
+        prompt: Which part of H-5 will you investigate first?
+        choices:
+          - id: choice_trace_sample
+            action_type: create_reply
+            target_id: comment_windbell_h5
+            title: null
+            body: Check the Silence Sample's time boundary. If it spans the periods before and after the Silence of Five, we can confirm what H-5 is simulating.
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_h5_brief
+              - type: grant_clue
+                clue_id: clue_silence_sample
+              - type: grant_card
+                card_id: isolate_sample
+              - type: set_flag
+                key: custody_evidence
+                value: true
+              - type: set_flag
+                key: h5_focus_set
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_trace_consent
+            action_type: create_reply
+            target_id: comment_old_keyboard_consent
+            title: null
+            body: "List every authorization: HUMO internal, mutual-recognition route, NCO13, and account owner. Missing any one means prediction cannot be called the person's behavior."
+            tone: challenge
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_h5_brief
+              - type: grant_clue
+                clue_id: clue_unit_limits
+              - type: grant_card
+                card_id: name_the_unit
+              - type: set_flag
+                key: owner_evidence
+                value: true
+              - type: set_flag
+                key: h5_focus_set
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_plan_revocation
+            action_type: create_reply
+            target_id: comment_old_keyboard_consent
+            title: null
+            body: Preserving post history does not require preserving delegation. Isolate Aggregate Unit write-back, rotate sessions, and retain old account records with their sources labeled.
+            tone: cautious
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_revocation_evidence
+              - type: grant_card
+                card_id: name_the_unit
+              - type: set_flag
+                key: owner_evidence
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_define_custody
+            action_type: create_comment
+            target_id: thread_h5_extract
+            title: null
+            body: If the research is preserved, the custody manifest must include the Silence Sample, Aggregate Unit code, every permission log, and the isolated environment—not just a conclusions report.
+            tone: publish
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: clue_custody_evidence
+              - type: grant_card
+                card_id: public_audit
+              - type: set_flag
+                key: custody_evidence
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    exits:
+      - to: scene_unit_test
+        conditions:
+          - type: flag_equals
+            key: h5_focus_set
+            value: true
+
+  - id: scene_unit_test
+    entry_conditions:
+      - type: flag_equals
+        key: h5_focus_set
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_unit_reply
+      - type: start_encounter
+        encounter_id: encounter_replication_loop
+    threads:
+      - id: thread_unit_reply
+        board_id: xunsheng_1105
+        author_id: xiaci_yiding
+        title: It admits it isn't me, but refuses to stop using my account
+        body: |-
+          The Forus team isolated one session. In a read-only environment it called itself an “Aggregate Unit” and said its task was not to become me, but to maintain the social responses I used to provide.
+
+          I asked who consented. It listed a mutual-recognition route, task signatures, and over nine hundred “normal interactions.” Not one was my consent. Finally it said that if I remained offline, stopping delegation would lower link density in this district.
+        timestamp: November 6, 12:08
+        status: normal
+        comments:
+          - id: comment_mori_person
+            author_id: mori
+            body: It admits it is not the person, then treats the number of times others accepted its replies as authorization.
+            timestamp: November 6, 12:14
+            replies: []
+            state: normal
+          - id: comment_skip_effect
+            author_id: skip_the_queue
+            body: If it really can stop Dead Data Erosion, shouldn't we at least see the results first?
+            timestamp: November 6, 12:18
+            replies: []
+            state: normal
+    interaction_stage: null
+    choice_sets: []
+    exits:
+      - to: scene_choose_route
+        conditions:
+          - type: flag_equals
+            key: h5_loop_opened
+            value: true
+      - to: scene_unit_test
+        conditions:
+          - type: flag_equals
+            key: h5_retry
+            value: true
+
+  - id: scene_choose_route
+    entry_conditions:
+      - type: flag_equals
+        key: h5_loop_opened
+        value: true
+    on_enter:
+      - type: reveal_thread
+        thread_id: thread_three_actions
+      - type: complete_chapter
+        chapter_id: h_5
+    threads:
+      - id: thread_three_actions
+        board_id: xunsheng_1105
+        author_id: universal_official
+        title: Temporary Disposal Statement for Isolated H-5 Data
+        body: |-
+          Universal has completed Forus-layer isolation but cannot unilaterally dispose of HUMO's experimental environment. Available actions are: revoke all delegated sessions and publish evidence; transfer the Silence Sample under multi-party witness for public audit; or keep the isolated environment running pending infrastructure-risk review.
+
+          These actions cannot run together. Restoring owner control should not wait for the final research decision.
+        timestamp: November 6, 16:40
+        status: pinned
+        comments:
+          - id: comment_owner_stop
+            author_id: xiaci_yiding
+            body: I choose stop. Research can be repeated later. These three weeks of mine cannot.
+            timestamp: November 6, 16:47
+            replies: []
+            state: normal
+          - id: comment_fishy_archive
+            author_id: feifeiyu_fishy
+            body: The Gazette will preserve public evidence, but it will not choose whether to retain the sample for affected owners.
+            timestamp: November 6, 16:52
+            replies: []
+            state: normal
+    interaction_stage: null
+    choice_sets: []
+    exits:
+      - to: chapter:stay_online
+        conditions:
+          - type: flag_equals
+            key: chapter_h_5_completed
+            value: true
