@@ -1,0 +1,133 @@
+meta:
+  story_id: h5_incident
+  day_id: day_02
+  sequence: 2
+  locale: zh-CN
+  display_date: 11月6日
+  interaction_limit: 2
+  content_version: 2.0.0
+  license: CC-BY-SA-4.0
+  title: 九个在线的人
+  summary: 异常扩展到九个账号，并指向一条被覆盖签名的维护路由。
+  on_enter: []
+  on_end: []
+  exits:
+    - target_day_id: day_03
+      conditions: []
+accounts:
+  - id: feifeiyu_fishy
+    username: "@飞飞鱼Fishy"
+    role: editor
+  - id: forus_team
+    username: "@Forus项目组"
+    role: official
+  - id: windbell_7
+    username: "@windbell_7"
+    role: community
+  - id: nco13_bulletin
+    username: "@NCO13发布"
+    role: official
+clues:
+  - id: overwritten_signature
+    name: 覆盖签名
+    description: 异常会话由外部维护路由签发，主体字段曾被多次覆盖。
+  - id: link_density_shift
+    name: 链接密度变化
+    description: 代行账号活跃时，NC13 局部链接密度出现同步上升。
+cards:
+  - id: trace_signature
+    name: 追踪签名
+    type: EvidenceCard
+    cost: 1
+    rules_text: 基础伤害4；敌方存在噪声时，本轮影响力+1。
+    base_damage: 4
+    effects: []
+    keywords: []
+    route_scope: governance_route
+encounters: []
+scenes:
+  - id: scene_nine_accounts
+    entry_conditions: []
+    threads:
+      - id: thread_nine_accounts
+        board_id: xunsheng_gazette
+        author_id: feifeiyu_fishy
+        title: 异常活跃审计：不是盗号，也不是单一账号
+        body: |-
+          小报已确认九个离线账号在规律签到、回复和投票。它们不索取财物，也不修改密码，只维持“社会活跃”。
+
+          会话来自一条标记为 NC7 的维护路由，签发主体字段被覆盖。请不要把来源标记直接等同于责任结论。
+        timestamp: 11月6日 09:10
+        status: pinned
+        comments:
+          - id: comment_forus_route
+            author_id: forus_team
+            body: Forus 已暂停该路由的应用层权限，并保存覆盖前后的签名片段。
+            timestamp: 11月6日 09:18
+            replies: []
+            state: normal
+          - id: comment_windbell_density
+            author_id: windbell_7
+            body: NC7 的公开图显示，账号开始代行后 NC13 的链接密度确实短暂上升。
+            timestamp: 11月6日 09:24
+            replies: []
+            state: normal
+          - id: comment_nco_denial
+            author_id: nco13_bulletin
+            body: NCO13 未批准任何账号代行试验，现已启动权限审计。
+            timestamp: 11月6日 09:31
+            replies: []
+            state: normal
+    choice_sets:
+      - id: choices_nine_accounts
+        choices:
+          - id: choice_restore_signature
+            action_type: create_reply
+            target_id: comment_forus_route
+            title: null
+            body: 对照覆盖前后的签名与时间戳，先确认谁有能力签发，而不是先猜谁该负责。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: overwritten_signature
+              - type: grant_card
+                card_id: trace_signature
+              - type: increment_counter
+                counter: governance_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_measure_density
+            action_type: create_reply
+            target_id: comment_windbell_density
+            title: null
+            body: 保留异常账号启停前后的同口径数据，确认上升是否来自真实连接而非重复回复。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: link_density_shift
+              - type: increment_counter
+                counter: survival_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_compare_memories
+            action_type: create_comment
+            target_id: thread_nine_accounts
+            title: null
+            body: 用公开事件的具体上下文提问；复制语气不代表拥有当时的经历。
+            tone: challenge
+            conditions: []
+            effects:
+              - type: increment_counter
+                counter: identity_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    on_enter: []
+    exits: []

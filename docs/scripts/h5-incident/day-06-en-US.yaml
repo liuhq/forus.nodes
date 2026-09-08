@@ -1,0 +1,191 @@
+meta:
+  story_id: h5_incident
+  day_id: day_06
+  sequence: 6
+  locale: en-US
+  display_date: November 10
+  interaction_limit: 2
+  content_version: 2.0.0
+  license: CC-BY-SA-4.0
+  title: Before Disposition
+  summary: Verification becomes the executable material required for sealing, disclosure, or subject separation.
+  on_enter: []
+  on_end: []
+  exits:
+    - target_day_id: day_07
+      conditions: []
+accounts:
+  - id: universal_official
+    username: "@寰宇Universal"
+    role: organization
+  - id: xiaci_yiding
+    username: "@下次一定"
+    role: community
+  - id: feifeiyu_fishy
+    username: "@飞飞鱼Fishy"
+    role: editor
+clues:
+  - id: account_separation_proof
+    name: Account-separation Proof
+    description: An Aggregate Unit can continue speaking after losing all authority over the human account.
+  - id: public_audit_manifest
+    name: Public Audit Manifest
+    description: Code, sample, permissions, writeback paths, and deletion records appear in one manifest.
+  - id: independent_runtime_proof
+    name: Independent-runtime Proof
+    description: Isolated operation does not weaken erosion protection and does not require fake human activity.
+  - id: complete_audit_bundle
+    name: Complete Audit Bundle
+    description: Evidence from at least two routes can be independently reproduced.
+cards:
+  - id: subject_separation_protocol
+    name: Subject Separation Protocol
+    type: ProtocolCard
+    cost: 3
+    rules_text: Final encounter only; revoke proxy authority while preserving Unit stability and open the separation exit.
+    base_damage: 0
+    effects:
+      - type: set_flag
+        flag: subject_protocol_executed
+        value: true
+    keywords: [protocol, true_ending]
+    route_scope: shared
+encounters: []
+scenes:
+  - id: scene_disposal_materials
+    entry_conditions: []
+    threads:
+      - id: thread_disposal_window
+        board_id: xunsheng_gazette
+        author_id: universal_official
+        title: The final H-5 disposition window opens tomorrow
+        body: |-
+          An executable proposal must address account return, permission revocation, sample handling, and city risk. Proposals without evidence will not enter tomorrow's window.
+
+          Sealing requires one complete route; disclosure requires a complete audit bundle; subject separation must answer identity, governance, and survival together.
+        timestamp: November 10, 14:00
+        status: pinned
+        comments:
+          - id: comment_owner_priority
+            author_id: xiaci_yiding
+            body: Whatever the proposal, return the accounts to their owners first.
+            timestamp: November 10, 14:08
+            replies: []
+            state: normal
+          - id: comment_fishy_manifest
+            author_id: feifeiyu_fishy
+            body: The Gazette will publish reproducible material, but never keys that can seize the accounts again.
+            timestamp: November 10, 14:12
+            replies: []
+            state: normal
+    choice_sets:
+      - id: choices_disposal_materials
+        choices:
+          - id: choice_finish_identity
+            action_type: create_reply
+            target_id: comment_owner_priority
+            title: null
+            body: Complete the blank-identity retest and prove that revoking a human account does not erase the Unit's expression.
+            tone: investigate
+            conditions:
+              - type: flag_equals
+                flag: identity_verified
+                value: true
+              - type: has_clue
+                clue_id: subject_testimony
+            effects:
+              - type: grant_clue
+                clue_id: account_separation_proof
+              - type: complete_route
+                route: identity_route
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_finish_governance
+            action_type: create_reply
+            target_id: comment_fishy_manifest
+            title: null
+            body: Publish redacted code, sample summaries, permission chains, writeback paths, and revocation records.
+            tone: publish
+            conditions:
+              - type: flag_equals
+                flag: governance_verified
+                value: true
+              - type: has_clue
+                clue_id: permission_chain
+            effects:
+              - type: grant_clue
+                clue_id: public_audit_manifest
+              - type: grant_clue
+                clue_id: complete_audit_bundle
+              - type: complete_route
+                route: governance_route
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_finish_survival
+            action_type: create_comment
+            target_id: thread_disposal_window
+            title: null
+            body: Submit the isolated runtime result. The city can maintain necessary links without impersonating human accounts.
+            tone: publish
+            conditions:
+              - type: flag_equals
+                flag: survival_verified
+                value: true
+              - type: has_clue
+                clue_id: erosion_boundary
+            effects:
+              - type: grant_clue
+                clue_id: independent_runtime_proof
+              - type: complete_route
+                route: survival_route
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_synthesize_three
+            action_type: create_post
+            target_id: xunsheng_gazette
+            title: One protocol must answer all three questions
+            body: Return the accounts, revoke the unauthorized chain, publish reproducible evidence, and allow Units to run only under isolated identities. City survival cannot require impersonation.
+            tone: publish
+            conditions:
+              - type: all
+                conditions:
+                  - type: flag_equals
+                    flag: identity_verified
+                    value: true
+                  - type: flag_equals
+                    flag: governance_verified
+                    value: true
+                  - type: flag_equals
+                    flag: survival_verified
+                    value: true
+                  - type: has_clue
+                    clue_id: subject_testimony
+                  - type: has_clue
+                    clue_id: permission_chain
+                  - type: has_clue
+                    clue_id: erosion_boundary
+            effects:
+              - type: grant_clue
+                clue_id: account_separation_proof
+              - type: grant_clue
+                clue_id: public_audit_manifest
+              - type: grant_clue
+                clue_id: independent_runtime_proof
+              - type: grant_clue
+                clue_id: complete_audit_bundle
+              - type: complete_route
+                route: identity_route
+              - type: complete_route
+                route: governance_route
+              - type: complete_route
+                route: survival_route
+              - type: grant_card
+                card_id: subject_separation_protocol
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    on_enter: []
+    exits: []

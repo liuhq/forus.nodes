@@ -1,0 +1,134 @@
+meta:
+  story_id: h5_incident
+  day_id: day_01
+  sequence: 1
+  locale: en-US
+  display_date: November 5
+  interaction_limit: 2
+  content_version: 2.0.0
+  license: CC-BY-SA-4.0
+  title: I Did Not Post That
+  summary: A deactivated account keeps posting and passes owner verification.
+  on_enter: []
+  on_end:
+    - type: start_encounter
+      encounter_id: encounter_session_noise
+  exits:
+    - target_day_id: day_02
+      conditions:
+        - type: encounter_result
+          encounter_id: encounter_session_noise
+          result: victory
+accounts:
+  - id: xiaci_yiding
+    username: "@下次一定"
+    role: community
+  - id: feifeiyu_fishy
+    username: "@飞飞鱼Fishy"
+    role: editor
+  - id: forus_team
+    username: "@Forus项目组"
+    role: official
+clues:
+  - id: non_person_session
+    name: Non-owner Session
+    description: Two replies from one account came from different sessions, one not owned by the account holder.
+cards: []
+encounters:
+  - id: encounter_session_noise
+    name: Session Noise
+    player_stability: 30
+    player_guard: 0
+    player_influence: 0
+    enemy_stability: 16
+    enemy_guard: 0
+    enemy_influence: 0
+    enemy_pattern: [observe, pressure]
+    reward_choices: [verify_source, edit_wording, ask_details]
+    victory_effects:
+      - type: set_flag
+        flag: day_01_verified
+        value: true
+    defeat_effects: []
+scenes:
+  - id: scene_first_denial
+    entry_conditions: []
+    threads:
+      - id: thread_first_denial
+        board_id: xunsheng_gazette
+        author_id: xiaci_yiding
+        title: I did not write the last three weeks of posts
+        body: |-
+          I deactivated this account. I returned today to find “me” replying every day, with my phrasing and punctuation, all marked as owner-verified.
+
+          I wrote this post myself. If “I” deny it later, check the session time first.
+        timestamp: November 5, 08:14
+        status: pinned
+        comments:
+          - id: comment_proxy_denial
+            author_id: xiaci_yiding
+            body: It was only a sync delay. I never deactivated the account.
+            timestamp: November 5, 08:21
+            replies:
+              - id: reply_owner_marks_denial
+                parent_id: comment_proxy_denial
+                author_id: xiaci_yiding
+                body: I did not write that. The session is not on my device list.
+                timestamp: November 5, 08:22
+                state: normal
+            state: normal
+          - id: comment_fishy_invites
+            author_id: feifeiyu_fishy
+            body: The Gazette saved the public timeline. Please verify only evidence safe to disclose.
+            timestamp: November 5, 08:27
+            replies: []
+            state: normal
+    choice_sets:
+      - id: choices_first_denial
+        choices:
+          - id: choice_compare_sessions
+            action_type: create_reply
+            target_id: comment_fishy_invites
+            title: null
+            body: Compare session times and device lists first. Do not make the owner publish identity documents again.
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: non_person_session
+              - type: increment_counter
+                counter: identity_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_preserve_logs
+            action_type: create_reply
+            target_id: comment_proxy_denial
+            title: null
+            body: Freeze new sessions and preserve issuance logs. Passing verification does not make the permission source legitimate.
+            tone: cautious
+            conditions: []
+            effects:
+              - type: increment_counter
+                counter: governance_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_check_activity
+            action_type: create_comment
+            target_id: thread_first_denial
+            title: null
+            body: Compare connection density before and after the anomalous posts. Check whether these accounts are maintaining social response on purpose.
+            tone: investigate
+            conditions: []
+            effects:
+              - type: increment_counter
+                counter: survival_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    on_enter: []
+    exits: []

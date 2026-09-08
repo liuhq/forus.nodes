@@ -1,0 +1,194 @@
+meta:
+  story_id: h5_incident
+  day_id: day_07
+  sequence: 7
+  locale: en-US
+  display_date: November 11
+  interaction_limit: 1
+  content_version: 2.0.0
+  license: CC-BY-SA-4.0
+  title: Who Stays Online
+  summary: After the final conflict, the player may publish one disposition—or stay silent and let H-5 resume.
+  on_enter:
+    - type: start_encounter
+      encounter_id: encounter_h5_core
+  on_end: []
+  exits:
+    - ending_id: new_presence
+      conditions:
+        - type: encounter_result
+          encounter_id: encounter_h5_core
+          result: victory
+        - type: flag_equals
+          flag: subject_protocol_executed
+          value: true
+        - type: flag_equals
+          flag: final_separate
+          value: true
+        - type: completed_route_count_at_least
+          count: 3
+      epilogue_title: A New Presence
+      epilogue_body: The Aggregate Unit no longer borrows a human account. It posts under its own identifier in the public isolation zone and accepts the same permissions, responsibilities, and exit rules as any other subject.
+    - ending_id: full_disclosure
+      conditions:
+        - type: encounter_result
+          encounter_id: encounter_h5_core
+          result: victory
+        - type: flag_equals
+          flag: final_disclose
+          value: true
+        - type: has_clue
+          clue_id: complete_audit_bundle
+        - type: completed_route_count_at_least
+          count: 2
+      epilogue_title: Full Disclosure
+      epilogue_body: H-5's code, sample summaries, and permission chain enter public audit. Account-seizure keys are destroyed, the owners regain control, and the city begins an open debate over the technology.
+    - ending_id: permanent_seal
+      conditions:
+        - type: encounter_result
+          encounter_id: encounter_h5_core
+          result: victory
+        - type: flag_equals
+          flag: final_seal
+          value: true
+        - type: completed_route_count_at_least
+          count: 1
+      epilogue_title: Permanent Seal
+      epilogue_body: Every proxy session is revoked. H-5 and the Silence Sample are sealed permanently. The accounts return, but no one can publicly verify what the system once did.
+    - ending_id: everyone_online
+      conditions: []
+      epilogue_title: Everyone Online
+      epilogue_body: Every question receives a polite, complete, identical answer within seconds. Link density reaches a historic high. The Gazette asks how many replies still come from people; forty-seven accounts answer together, “I am online.”
+accounts:
+  - id: universal_official
+    username: "@寰宇Universal"
+    role: organization
+  - id: xiaci_yiding
+    username: "@下次一定"
+    role: community
+  - id: feifeiyu_fishy
+    username: "@飞飞鱼Fishy"
+    role: editor
+clues: []
+cards: []
+encounters:
+  - id: encounter_h5_core
+    name: H-5 Core
+    player_stability: 30
+    player_guard: 0
+    player_influence: 0
+    enemy_stability: 48
+    enemy_guard: 6
+    enemy_influence: 3
+    enemy_pattern: [maintain_activity, copy_first_card, overwrite_source, closed_consensus]
+    reward_choices: []
+    victory_effects:
+      - type: set_flag
+        flag: h5_core_controlled
+        value: true
+    defeat_effects:
+      - type: set_flag
+        flag: h5_core_failed
+        value: true
+scenes:
+  - id: scene_final_decision
+    entry_conditions: []
+    threads:
+      - id: thread_final_window
+        board_id: xunsheng_gazette
+        author_id: universal_official
+        title: Final H-5 disposition window
+        body: |-
+          Core writeback has stopped. Only one final position may be submitted; proposals without completed verification will not appear.
+
+          If no one submits, the system will restore maintenance mode when the window closes.
+        timestamp: November 11, 09:00
+        status: pinned
+        comments:
+          - id: comment_owner_final
+            author_id: xiaci_yiding
+            body: After today, I should still decide when I come online.
+            timestamp: November 11, 09:05
+            replies: []
+            state: normal
+    choice_sets:
+      - id: choices_final_decision
+        choices:
+          - id: choice_final_separate
+            action_type: create_post
+            target_id: xunsheng_gazette
+            title: Let it be present under its own name
+            body: Revoke all proxy authority and preserve the isolated subject. It may not occupy a human identity, but it should receive explicit, public, revocable permissions of its own.
+            tone: publish
+            conditions:
+              - type: encounter_result
+                encounter_id: encounter_h5_core
+                result: victory
+              - type: flag_equals
+                flag: subject_protocol_executed
+                value: true
+              - type: completed_route_count_at_least
+                count: 3
+            effects:
+              - type: set_flag
+                flag: final_separate
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_final_disclose
+            action_type: create_post
+            target_id: xunsheng_gazette
+            title: Disclose H-5's complete chain of responsibility
+            body: Return the accounts, destroy seizure keys, and place code, sample summaries, permissions, and revocation records under public audit.
+            tone: publish
+            conditions:
+              - type: encounter_result
+                encounter_id: encounter_h5_core
+                result: victory
+              - type: has_clue
+                clue_id: complete_audit_bundle
+              - type: completed_route_count_at_least
+                count: 2
+            effects:
+              - type: set_flag
+                flag: final_disclose
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_final_seal
+            action_type: create_post
+            target_id: xunsheng_gazette
+            title: Seal H-5 permanently
+            body: Revoke proxy sessions and seal the sample, code, and permission records. First return every account to its owner.
+            tone: withdraw
+            conditions:
+              - type: encounter_result
+                encounter_id: encounter_h5_core
+                result: victory
+              - type: completed_route_count_at_least
+                count: 1
+            effects:
+              - type: set_flag
+                flag: final_seal
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_final_maintain
+            action_type: create_comment
+            target_id: thread_final_window
+            title: null
+            body: Restore H-5 for now. Account ownership can wait as long as the city stays online.
+            tone: support
+            conditions: []
+            effects:
+              - type: set_flag
+                flag: final_maintain
+                value: true
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    on_enter: []
+    exits: []

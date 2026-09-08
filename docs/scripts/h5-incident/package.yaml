@@ -1,0 +1,46 @@
+id: h5_incident
+content_version: 2.0.0
+duration_days: 7
+boards:
+  - id: general_discussion
+    kind: general
+  - id: xunsheng_gazette
+    kind: story
+days:
+  - id: day_01
+    sequence: 1
+  - id: day_02
+    sequence: 2
+  - id: day_03
+    sequence: 3
+  - id: day_04
+    sequence: 4
+  - id: day_05
+    sequence: 5
+  - id: day_06
+    sequence: 6
+  - id: day_07
+    sequence: 7
+routes:
+  - id: identity_route
+    progress_counter: identity_progress
+    required_clues: [non_person_session, subject_testimony, account_separation_proof]
+  - id: governance_route
+    progress_counter: governance_progress
+    required_clues: [overwritten_signature, permission_chain, public_audit_manifest]
+  - id: survival_route
+    progress_counter: survival_progress
+    required_clues: [link_density_shift, erosion_boundary, independent_runtime_proof]
+endings:
+  - id: new_presence
+    kind: "true"
+    priority: 1
+  - id: full_disclosure
+    kind: happy
+    priority: 2
+  - id: permanent_seal
+    kind: good
+    priority: 3
+  - id: everyone_online
+    kind: bad
+    priority: 4

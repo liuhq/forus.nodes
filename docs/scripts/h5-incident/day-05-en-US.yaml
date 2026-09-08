@@ -1,0 +1,192 @@
+meta:
+  story_id: h5_incident
+  day_id: day_05
+  sequence: 5
+  locale: en-US
+  display_date: November 9
+  interaction_limit: 3
+  content_version: 2.0.0
+  license: CC-BY-SA-4.0
+  title: Cross-validation
+  summary: Three routes meet in one isolation test; missing evidence can be recovered at the cost of deeper verification.
+  on_enter: []
+  on_end:
+    - type: start_encounter
+      encounter_id: encounter_closed_consensus
+  exits:
+    - target_day_id: day_06
+      conditions:
+        - type: encounter_result
+          encounter_id: encounter_closed_consensus
+          result: victory
+accounts:
+  - id: feifeiyu_fishy
+    username: "@飞飞鱼Fishy"
+    role: editor
+  - id: universal_official
+    username: "@寰宇Universal"
+    role: organization
+  - id: mori
+    username: "@Mori"
+    role: community
+clues: []
+cards:
+  - id: break_consensus
+    name: Break Consensus
+    type: DisruptionCard
+    cost: 1
+    rules_text: Enemy loses 2 influence; draw 1 if all three verifications are complete.
+    base_damage: 0
+    effects: []
+    keywords: []
+    route_scope: shared
+encounters:
+  - id: encounter_closed_consensus
+    name: Closed Consensus
+    player_stability: 30
+    player_guard: 0
+    player_influence: 0
+    enemy_stability: 32
+    enemy_guard: 4
+    enemy_influence: 2
+    enemy_pattern: [repeat_claim, copy_first_card, amplify]
+    reward_choices: [break_consensus, isolated_voice, audit_chain]
+    victory_effects:
+      - type: set_flag
+        flag: consensus_broken
+        value: true
+    defeat_effects: []
+scenes:
+  - id: scene_cross_validation
+    entry_conditions: []
+    threads:
+      - id: thread_isolation_results
+        board_id: xunsheng_gazette
+        author_id: universal_official
+        title: Raw results from three isolation tests
+        body: |-
+          The first removed human account labels, the second revoked cross-city permission, and the third stopped proxy replies. The Units kept expressing themselves in the first, lost write access in the second, and did not move the erosion boundary in the third.
+
+          Each test alone supports a convenient but incomplete conclusion. They must be read together.
+        timestamp: November 9, 11:30
+        status: pinned
+        comments:
+          - id: comment_fishy_cross
+            author_id: feifeiyu_fishy
+            body: Today you can recover missing evidence or advance existing clues to final verification. There is not enough time to do both.
+            timestamp: November 9, 11:38
+            replies: []
+            state: normal
+    choice_sets:
+      - id: choices_cross_validation
+        choices:
+          - id: choice_recover_identity
+            action_type: create_reply
+            target_id: comment_fishy_cross
+            title: null
+            body: Recover session ownership records and prove that the proxy activity was not performed by the account owner.
+            tone: investigate
+            conditions:
+              - type: not
+                condition:
+                  type: has_clue
+                  clue_id: non_person_session
+            effects:
+              - type: grant_clue
+                clue_id: non_person_session
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_verify_identity
+            action_type: create_comment
+            target_id: thread_isolation_results
+            title: null
+            body: Compare blank-account and original-account answers. Confirm that a Unit can speak without impersonating a person.
+            tone: investigate
+            conditions:
+              - type: has_clue
+                clue_id: non_person_session
+            effects:
+              - type: set_flag
+                flag: identity_verified
+                value: true
+              - type: increment_counter
+                counter: identity_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_recover_governance
+            action_type: create_reply
+            target_id: comment_fishy_cross
+            title: null
+            body: Recover the original signature and confirm that an external program overwrote the cross-city field.
+            tone: investigate
+            conditions:
+              - type: not
+                condition:
+                  type: has_clue
+                  clue_id: overwritten_signature
+            effects:
+              - type: grant_clue
+                clue_id: overwritten_signature
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_verify_governance
+            action_type: create_comment
+            target_id: thread_isolation_results
+            title: null
+            body: Replay the full permission chain. Show that revoking any unauthorized layer stops writeback without destroying public records.
+            tone: investigate
+            conditions:
+              - type: has_clue
+                clue_id: overwritten_signature
+            effects:
+              - type: set_flag
+                flag: governance_verified
+                value: true
+              - type: increment_counter
+                counter: governance_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_recover_survival
+            action_type: create_reply
+            target_id: comment_fishy_cross
+            title: null
+            body: Recover comparable link-density and erosion-boundary data from before and after proxy activation.
+            tone: investigate
+            conditions:
+              - type: not
+                condition:
+                  type: has_clue
+                  clue_id: link_density_shift
+            effects:
+              - type: grant_clue
+                clue_id: link_density_shift
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_verify_survival
+            action_type: create_comment
+            target_id: thread_isolation_results
+            title: null
+            body: Separate reply volume, human connection, and the erosion boundary. One density metric cannot stand for city survival.
+            tone: investigate
+            conditions:
+              - type: has_clue
+                clue_id: link_density_shift
+            effects:
+              - type: set_flag
+                flag: survival_verified
+                value: true
+              - type: increment_counter
+                counter: survival_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    on_enter: []
+    exits: []

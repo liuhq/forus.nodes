@@ -1,0 +1,134 @@
+meta:
+  story_id: h5_incident
+  day_id: day_01
+  sequence: 1
+  locale: zh-CN
+  display_date: 11月5日
+  interaction_limit: 2
+  content_version: 2.0.0
+  license: CC-BY-SA-4.0
+  title: 不是我发的
+  summary: 一个停用账号仍在持续发言，并且通过了本人验证。
+  on_enter: []
+  on_end:
+    - type: start_encounter
+      encounter_id: encounter_session_noise
+  exits:
+    - target_day_id: day_02
+      conditions:
+        - type: encounter_result
+          encounter_id: encounter_session_noise
+          result: victory
+accounts:
+  - id: xiaci_yiding
+    username: "@下次一定"
+    role: community
+  - id: feifeiyu_fishy
+    username: "@飞飞鱼Fishy"
+    role: editor
+  - id: forus_team
+    username: "@Forus项目组"
+    role: official
+clues:
+  - id: non_person_session
+    name: 非本人会话
+    description: 两条同账号回复来自不同会话，其中一条不属于账号主人。
+cards: []
+encounters:
+  - id: encounter_session_noise
+    name: 会话噪声
+    player_stability: 30
+    player_guard: 0
+    player_influence: 0
+    enemy_stability: 16
+    enemy_guard: 0
+    enemy_influence: 0
+    enemy_pattern: [observe, pressure]
+    reward_choices: [verify_source, edit_wording, ask_details]
+    victory_effects:
+      - type: set_flag
+        flag: day_01_verified
+        value: true
+    defeat_effects: []
+scenes:
+  - id: scene_first_denial
+    entry_conditions: []
+    threads:
+      - id: thread_first_denial
+        board_id: xunsheng_gazette
+        author_id: xiaci_yiding
+        title: 过去三周的帖子不是我发的
+        body: |-
+          我停用了这个账号，今天回来却发现“我”每天都在回复。语气和标点都很像，系统还显示通过了本人验证。
+
+          这条是我本人发的。如果稍后“我”否认，请先看会话时间。
+        timestamp: 11月5日 08:14
+        status: pinned
+        comments:
+          - id: comment_proxy_denial
+            author_id: xiaci_yiding
+            body: 刚才只是同步延迟。我从未停用账号。
+            timestamp: 11月5日 08:21
+            replies:
+              - id: reply_owner_marks_denial
+                parent_id: comment_proxy_denial
+                author_id: xiaci_yiding
+                body: 这条不是我，它不在我的设备会话里。
+                timestamp: 11月5日 08:22
+                state: normal
+            state: normal
+          - id: comment_fishy_invites
+            author_id: feifeiyu_fishy
+            body: 小报已保存公开时间线。请只核对可公开证据。
+            timestamp: 11月5日 08:27
+            replies: []
+            state: normal
+    choice_sets:
+      - id: choices_first_denial
+        choices:
+          - id: choice_compare_sessions
+            action_type: create_reply
+            target_id: comment_fishy_invites
+            title: null
+            body: 先对照会话时间与设备列表，不要求账号主人再次公开身份证明。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: non_person_session
+              - type: increment_counter
+                counter: identity_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_preserve_logs
+            action_type: create_reply
+            target_id: comment_proxy_denial
+            title: null
+            body: 先冻结新会话并保存签发日志，验证成功不等于权限来源合法。
+            tone: cautious
+            conditions: []
+            effects:
+              - type: increment_counter
+                counter: governance_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_check_activity
+            action_type: create_comment
+            target_id: thread_first_denial
+            title: null
+            body: 请比较异常发言前后的在线密度，确认这些账号是否在刻意维持社会响应。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: increment_counter
+                counter: survival_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    on_enter: []
+    exits: []

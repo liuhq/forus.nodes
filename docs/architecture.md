@@ -2,19 +2,17 @@
 
 ## 架构目标
 
-项目采用前端主导的单页应用。游戏规则、剧情解释、战斗和本地存档均在浏览器执行；后端不裁定游戏结果，只负责账号会话与版本化云存档。这样既突出 React 与 WebGL 能力，也让游客在后端不可用时完成全部游戏内容。
+项目采用前端主导的单页应用。游戏规则、日期推进、战斗和本地存档均在浏览器执行；后端只负责账号会话与版本化云存档。WebGL 是可缺席的适配包，不得成为任何核心模块的依赖。
 
-## 前端
+## 前端模块
 
-### 模块边界
-
-- 应用外壳（`AppShell`）：站点导航、响应式布局、全局错误边界和路由出口。
-- 论坛域（`ForumDomain`）：版块、帖子、评论、回复、通知、搜索外观和个人页。
-- 剧情运行时（`StoryRuntime`）：载入故事包、判断条件、执行效果、保存检查点。
-- 战斗域（`CombatDomain`）：固定种子随机数、抽牌、效果栈、敌方意图与结算。
-- 内容仓库（`ContentRepository`）：按语言载入编译后的章节数据并校验内容版本。
-- 存档域（`SaveDomain`）：本地持久化、版本迁移、云端同步与冲突处理。
-- 视效层（`EffectsLayer`）：React Three Fiber 场景、质量档位和纯 CSS 降级。
+- 应用外壳（`AppShell`）：导航、路由、错误边界和首次进入/继续周目。
+- 论坛域（`ForumDomain`）：版块、帖子树、通知、档案和个人页。
+- 故事运行时（`StoryRuntime`）：加载单故事包、日期额度、条件、效果与出口。
+- 战斗域（`CombatDomain`）：固定种子、三堆牌、双方数值、意图与结算。
+- 内容仓库（`ContentRepository`）：按日期与语言加载编译 JSON。
+- 存档域（`SaveDomain`）：IndexedDB、迁移、云同步与冲突。
+- 视效端口（`EffectsPort`）：声明语义视效事件并默认使用无操作实现。
 
 路由建议：
 
@@ -23,6 +21,7 @@
 /boards/:boardId
 /threads/:threadId
 /compose/:choiceSetId
+/combat/:encounterId
 /profile
 /profile/archive/:runId
 /settings
@@ -30,91 +29,50 @@
 /auth/register
 ```
 
-论坛首页展示综合讨论（`general_discussion`）、浔声小报（6月23日）（`xunsheng_0623`）和浔声小报（11月5日）（`xunsheng_1105`）。第二期初始可见但不可进入，进入条件只检查第一期是否完成任意结局。
+首次访问 `/` 自动创建或恢复《H-5》周目。不存在故事目录、故事选择路由和第二故事访问条件。
 
-### 状态与数据流
-
-剧情运行时使用纯函数处理事件：
+## 状态与数据流
 
 ```text
-内容数据 + 当前存档 + 玩家交互
+日期内容 + 当前存档 + 玩家动作
               ↓
-         条件判定器
+      条件判定与事务式效果
               ↓
-          效果执行器
+论坛状态 / 路线 / 牌组 / 战斗
               ↓
- 新帖子/状态/牌组/路由出口 → 本地保存 → 可选云同步
+       日期出口 → 本地保存 → 可选云同步
 ```
 
-- 可序列化游戏状态是唯一事实来源，React 组件不私自保存剧情判定状态。
-- 随机行为从周目种子（`run_seed`）派生，测试和问题复现使用同一随机序列。
-- 已发布的发帖、评论和回复保存选项 ID 与渲染结果；本地化切换后使用选项 ID 重新读取对应语言文本。
-- 当前周目状态与永久档案分开。历史线索和帖子可阅读，但不能满足当前周目条件。
+- 可序列化状态是唯一事实来源，React 组件不得私存剧情判定状态。
+- 随机行为由 `run_seed` 派生，存档同时保存随机序列位置。
+- 已发布楼层保存选项 ID；切换语言后按 ID 读取对应文本。
+- 日期结束效果使用幂等标记，战斗重试不能再次执行。
+- 运行时遍历 `StoryPackage.days`，不允许使用常量 7 判断完成。
 
-### WebGL 与降级
+## 可选视效架构
 
-WebGL 画布固定在论坛 DOM 后方或非关键覆盖层，不接管文字排版、焦点或按钮命中区域。质量档位（`EffectQuality`）包含 `high`、`balanced`、`low`、`off`：
+```text
+Core UI / Story / Combat
+          ↓ semantic events
+     EffectsAdapter
+       ↙         ↘
+NoopEffectsAdapter  optional WebGLEffectsAdapter
+```
 
-- 桌面默认 `balanced`，根据帧率自动升降。
-- 移动端默认 `low`，关闭昂贵后处理并限制设备像素比。
-- `prefers-reduced-motion` 默认使用 `off` 或静态效果。
-- WebGL 初始化失败时保持完整 DOM 游戏流程，仅禁用视觉反馈。
+`EffectsAdapter` 只暴露 `mount`、`emit`、`setQuality`、`dispose`。事件包含页面切换、异常显现、出牌、受击、日期变化和结局；载荷只能使用核心定义的可序列化类型。
+
+核心包默认注册 `NoopEffectsAdapter`。WebGL 包通过动态导入和运行时注册加载，核心代码不得导入 Three.js 或 React Three Fiber。缺包、初始化失败、上下文丢失或关闭视效时回退到 DOM/CSS，不阻断操作、不改变状态。
 
 ## 内容构建
 
-源文件位于 `docs/scripts`，开发阶段通过内容构建脚本完成：YAML 解析、schema 校验、中英结构对齐、引用校验、分支可达性分析和 JSON 输出。运行时只读取构建后的 JSON，不在客户端解析 YAML。
+构建脚本执行 YAML schema 校验、中英结构对齐、引用校验、日期连续性、路线与结局可达性分析，再输出按日期和语言拆分的 JSON。`content_version` 与 `schema_version` 独立。
 
-内容版本（`content_version`）与存档 schema 版本（`schema_version`）独立。文本修订通常只提升内容版本；字段或语义变化才提升 schema 版本并提供迁移函数。
+## 后端接口
 
-## 后端与接口
+API 使用 `/api/v1`：注册、登录、登出、会话查询、读取存档和带 `If-Match` 的完整存档替换。修订冲突返回 `409 save_conflict`，客户端让玩家选择本地或云端完整覆盖。
 
-API 使用 `/api/v1` 前缀，同源部署：
+密码使用 Argon2id；会话仅存令牌哈希；Cookie 设置 `HttpOnly`、`Secure`、`SameSite=Lax`。验证 Origin、限制认证频率和请求体大小，日志不得记录密码、令牌或完整存档。
 
-| 方法与路径 | 用途 |
-|---|---|
-| `POST /auth/register` | 创建用户名密码账号，可携带游客存档 |
-| `POST /auth/login` | 建立服务端会话 |
-| `POST /auth/logout` | 撤销当前会话 |
-| `GET /auth/session` | 获取当前用户摘要 |
-| `GET /save` | 获取云存档、修订号和更新时间 |
-| `PUT /save` | 使用 `If-Match` 替换完整云存档 |
+## 部署
 
-注册、登录和存档响应使用统一错误结构（`ApiError`）：
-
-```json
-{
-  "error": {
-    "code": "save_conflict",
-    "message": "可本地化的安全提示",
-    "request_id": "opaque-id"
-  }
-}
-```
-
-云存档包（`SaveEnvelope`）至少包含：
-
-```text
-schema_version
-content_version
-revision
-updated_at
-settings
-current_run
-permanent_archive
-```
-
-`PUT /save` 必须携带最近一次读取到的 ETag。修订不匹配返回 `409 save_conflict` 和云端摘要，客户端展示本地/云端的更新时间、故事、章节和结局数，由玩家选择覆盖方向；不自动合并分支状态。
-
-## 安全
-
-- 使用 Argon2id 生成密码哈希，每个密码使用独立随机盐；参数记录在哈希编码中以支持升级。
-- 会话令牌使用密码学安全随机数，只将令牌哈希存入 SQLite。
-- Cookie 设置 `HttpOnly`、`Secure`、`SameSite=Lax` 和明确生命周期；登录和登出时轮换或撤销会话。
-- 同源部署并验证 `Origin`；所有状态变更接口拒绝异常来源。
-- 对注册和登录按 IP 与用户名维度限流，错误信息不暴露用户名是否存在。
-- 限制用户名、密码和存档请求体大小；服务端校验存档版本和结构，但不接受可执行内容。
-- Gorm 迁移在启动前执行显式版本检查；SQLite 开启外键、WAL 和合理的忙等待时间。
-
-## 部署与可观测性
-
-前端静态产物与 Go API 同源提供。生产环境记录结构化请求日志、请求 ID、响应时间、状态码、登录限流和存档冲突计数；禁止记录密码、会话令牌与完整存档正文。提供健康检查和就绪检查，并在发布前备份 SQLite 数据库。
+前端静态产物与 Go API 同源提供。基础生产构建不得包含或要求 WebGL 包。结构化日志记录请求 ID、耗时、状态码、限流和冲突计数；SQLite 启用外键、WAL 和忙等待，并在发布前备份。

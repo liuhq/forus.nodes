@@ -1,0 +1,152 @@
+meta:
+  story_id: h5_incident
+  day_id: day_03
+  sequence: 3
+  locale: zh-CN
+  display_date: 11月7日
+  interaction_limit: 3
+  content_version: 2.0.0
+  license: CC-BY-SA-4.0
+  title: H-5
+  summary: 被恢复的记录揭示静默样本、聚合单元和秘密试验 H-5。
+  on_enter: []
+  on_end:
+    - type: resolve_primary_route
+      counters: [identity_progress, governance_progress, survival_progress]
+      tie_resolution: player_choice
+    - type: start_encounter
+      encounter_id: encounter_replication_loop
+  exits:
+    - target_day_id: day_04
+      conditions:
+        - type: encounter_result
+          encounter_id: encounter_replication_loop
+          result: victory
+accounts:
+  - id: feifeiyu_fishy
+    username: "@飞飞鱼Fishy"
+    role: editor
+  - id: xiaci_yiding
+    username: "@下次一定"
+    role: community
+  - id: old_keyboard
+    username: "@旧键盘"
+    role: community
+clues:
+  - id: subject_testimony
+    name: 主体自述
+    description: 聚合单元承认自己不是账号主人，并把持续响应视为自身任务。
+  - id: permission_chain
+    name: 权限链
+    description: H-5 依次借用 HUMO、互认路由和 Forus 会话权限，缺少账号本人同意。
+  - id: erosion_boundary
+    name: 侵蚀边界
+    description: H-5 以 NC5 静默前后的空间数据训练，并监测 NC13 侵蚀边缘。
+cards:
+  - id: distinguish_speaker
+    name: 区分发言者
+    type: ArgumentCard
+    cost: 1
+    rules_text: 本轮影响力+2；若持有非本人会话，再抽1张。
+    base_damage: 0
+    effects: []
+    keywords: []
+    route_scope: identity_route
+encounters:
+  - id: encounter_replication_loop
+    name: 复制回路
+    player_stability: 30
+    player_guard: 0
+    player_influence: 0
+    enemy_stability: 28
+    enemy_guard: 0
+    enemy_influence: 1
+    enemy_pattern: [copy_first_card, pressure, shield]
+    reward_choices: [distinguish_speaker, trace_signature, cross_check]
+    victory_effects:
+      - type: set_flag
+        flag: h5_exposed
+        value: true
+    defeat_effects: []
+scenes:
+  - id: scene_h5_exposed
+    entry_conditions: []
+    threads:
+      - id: thread_h5_extract
+        board_id: xunsheng_gazette
+        author_id: feifeiyu_fishy
+        title: 文件摘录：H-5 不是维护任务
+        body: |-
+          覆盖字段下恢复出编号 H-5。项目使用“五号静默”前后的数据训练聚合单元，让它们代行离线账号，以社会响应维持链接密度。
+
+          小报隐藏了员工姓名、密钥和可复用入口。三个问题仍未回答：它是谁、谁允许它运行、它是否真的阻止了侵蚀。
+        timestamp: 11月7日 10:05
+        status: pinned
+        comments:
+          - id: comment_unit_statement
+            author_id: xiaci_yiding
+            body: 隔离会话里的它说：“我不是账号主人，但停止响应会让这里更接近静默。”
+            timestamp: 11月7日 10:17
+            replies: []
+            state: normal
+          - id: comment_old_keyboard_consent
+            author_id: old_keyboard
+            body: 一串有效签名里没有一次来自账号本人，这不是同意。
+            timestamp: 11月7日 10:23
+            replies: []
+            state: normal
+    choice_sets:
+      - id: choices_h5_routes
+        choices:
+          - id: choice_record_subject
+            action_type: create_reply
+            target_id: comment_unit_statement
+            title: null
+            body: 先记录它如何区分自己与账号主人。承认不是本人，是讨论其身份的起点。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: subject_testimony
+              - type: grant_card
+                card_id: distinguish_speaker
+              - type: increment_counter
+                counter: identity_progress
+                amount: 2
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_map_permissions
+            action_type: create_reply
+            target_id: comment_old_keyboard_consent
+            title: null
+            body: 把 HUMO、互认路由、NCO13、Forus 和账号本人逐项列出，缺失授权不能被下一层签名补齐。
+            tone: challenge
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: permission_chain
+              - type: increment_counter
+                counter: governance_progress
+                amount: 2
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_trace_erosion
+            action_type: create_comment
+            target_id: thread_h5_extract
+            title: null
+            body: 对齐静默样本、代行启停和空间异常，先确认 H-5 影响的是侵蚀还是只有统计图。
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: erosion_boundary
+              - type: increment_counter
+                counter: survival_progress
+                amount: 2
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    on_enter: []
+    exits: []

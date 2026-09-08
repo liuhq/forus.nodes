@@ -1,0 +1,191 @@
+meta:
+  story_id: h5_incident
+  day_id: day_06
+  sequence: 6
+  locale: zh-CN
+  display_date: 11月10日
+  interaction_limit: 2
+  content_version: 2.0.0
+  license: CC-BY-SA-4.0
+  title: 处置之前
+  summary: 玩家把验证结果转化为封存、公开或主体分离所需的执行材料。
+  on_enter: []
+  on_end: []
+  exits:
+    - target_day_id: day_07
+      conditions: []
+accounts:
+  - id: universal_official
+    username: "@寰宇Universal"
+    role: organization
+  - id: xiaci_yiding
+    username: "@下次一定"
+    role: community
+  - id: feifeiyu_fishy
+    username: "@飞飞鱼Fishy"
+    role: editor
+clues:
+  - id: account_separation_proof
+    name: 账号分离证明
+    description: 聚合单元可在撤销真人账号权限后继续表达。
+  - id: public_audit_manifest
+    name: 公开审计清单
+    description: 代码、样本、权限、写回通道与删除记录被纳入同一清单。
+  - id: independent_runtime_proof
+    name: 独立运行证明
+    description: 隔离运行不降低侵蚀防护，也无需伪造真人活跃。
+  - id: complete_audit_bundle
+    name: 完整审计包
+    description: 两条以上路线的证据可由公众独立复核。
+cards:
+  - id: subject_separation_protocol
+    name: 主体分离协议
+    type: ProtocolCard
+    cost: 3
+    rules_text: 仅限最终战；撤销代行权限但保留聚合单元稳定度，开启主体分离出口。
+    base_damage: 0
+    effects:
+      - type: set_flag
+        flag: subject_protocol_executed
+        value: true
+    keywords: [protocol, true_ending]
+    route_scope: shared
+encounters: []
+scenes:
+  - id: scene_disposal_materials
+    entry_conditions: []
+    threads:
+      - id: thread_disposal_window
+        board_id: xunsheng_gazette
+        author_id: universal_official
+        title: H-5 最终处置窗口将在明日开放
+        body: |-
+          可执行方案必须说明账号归还、权限撤销、样本处置和城市风险。证据不足的方案不会进入明日窗口。
+
+          封存只要求一条完整路线；公开要求完整审计包；主体分离必须同时回答身份、治理与存续。
+        timestamp: 11月10日 14:00
+        status: pinned
+        comments:
+          - id: comment_owner_priority
+            author_id: xiaci_yiding
+            body: 无论选择哪一种方案，先把账号还给本人。
+            timestamp: 11月10日 14:08
+            replies: []
+            state: normal
+          - id: comment_fishy_manifest
+            author_id: feifeiyu_fishy
+            body: 小报会公开可复核材料，但不会发布能重新接管账号的密钥。
+            timestamp: 11月10日 14:12
+            replies: []
+            state: normal
+    choice_sets:
+      - id: choices_disposal_materials
+        choices:
+          - id: choice_finish_identity
+            action_type: create_reply
+            target_id: comment_owner_priority
+            title: null
+            body: 完成空白身份复测，证明撤销真人账号权限不会抹除聚合单元的表达。
+            tone: investigate
+            conditions:
+              - type: flag_equals
+                flag: identity_verified
+                value: true
+              - type: has_clue
+                clue_id: subject_testimony
+            effects:
+              - type: grant_clue
+                clue_id: account_separation_proof
+              - type: complete_route
+                route: identity_route
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_finish_governance
+            action_type: create_reply
+            target_id: comment_fishy_manifest
+            title: null
+            body: 发布经过脱敏的代码、样本摘要、权限链、写回通道和撤销记录。
+            tone: publish
+            conditions:
+              - type: flag_equals
+                flag: governance_verified
+                value: true
+              - type: has_clue
+                clue_id: permission_chain
+            effects:
+              - type: grant_clue
+                clue_id: public_audit_manifest
+              - type: grant_clue
+                clue_id: complete_audit_bundle
+              - type: complete_route
+                route: governance_route
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_finish_survival
+            action_type: create_comment
+            target_id: thread_disposal_window
+            title: null
+            body: 提交隔离运行结果，证明城市无需冒用真人账号也能维持必要连接。
+            tone: publish
+            conditions:
+              - type: flag_equals
+                flag: survival_verified
+                value: true
+              - type: has_clue
+                clue_id: erosion_boundary
+            effects:
+              - type: grant_clue
+                clue_id: independent_runtime_proof
+              - type: complete_route
+                route: survival_route
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_synthesize_three
+            action_type: create_post
+            target_id: xunsheng_gazette
+            title: 三个问题必须由同一份协议回答
+            body: 先归还账号，再撤销越权链；公开可复核材料，并让聚合单元只在隔离身份下运行。城市存续不能要求任何人被冒名。
+            tone: publish
+            conditions:
+              - type: all
+                conditions:
+                  - type: flag_equals
+                    flag: identity_verified
+                    value: true
+                  - type: flag_equals
+                    flag: governance_verified
+                    value: true
+                  - type: flag_equals
+                    flag: survival_verified
+                    value: true
+                  - type: has_clue
+                    clue_id: subject_testimony
+                  - type: has_clue
+                    clue_id: permission_chain
+                  - type: has_clue
+                    clue_id: erosion_boundary
+            effects:
+              - type: grant_clue
+                clue_id: account_separation_proof
+              - type: grant_clue
+                clue_id: public_audit_manifest
+              - type: grant_clue
+                clue_id: independent_runtime_proof
+              - type: grant_clue
+                clue_id: complete_audit_bundle
+              - type: complete_route
+                route: identity_route
+              - type: complete_route
+                route: governance_route
+              - type: complete_route
+                route: survival_route
+              - type: grant_card
+                card_id: subject_separation_protocol
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    on_enter: []
+    exits: []

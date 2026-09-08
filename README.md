@@ -1,15 +1,16 @@
 # Forus Nodes
 
-## 游戏内容
+Forus Nodes 是一款以拟真论坛为主要界面的七日文本互动与卡牌 Roguelike 网页游戏。玩家从 11 月 5 日开始调查 H-5 异常，通过预设的发帖、评论和回复在身份、治理、存续三条线之间取舍，并在 11 月 11 日导向 Bad、Good、Happy 或 True End。
 
-Forus Nodes 是一款以拟真论坛为主要界面的文本互动与卡牌 Roguelike 网页游戏。玩家通过预设选项发帖、评论和回复，在论坛页面中调查异常事件、收集线索，并以卡牌化的信息攻防处理冲突和推动剧情。
+剧情、规则与本地存档完全在浏览器运行。Go 后端只提供账号与云存档；WebGL 是通过适配器接入的可选视效包，缺失或加载失败不会影响完整游戏。
 
-## 部署方式
+## 技术方向
 
-待定。
+- 前端：React、React Router、Tailwind CSS、i18n、IndexedDB。
+- 后端：Gin、Gorm、SQLite，用户名与密码登录。
+- 内容：按日期拆分的中英双语 YAML，经校验后构建为 JSON。
+- 许可：代码采用 MPL-2.0；游戏设计、世界观与剧情内容采用 CC BY-SA 4.0。
 
-## 许可
+## 当前状态
 
-项目代码采用 [Mozilla Public License 2.0](LICENSE)（MPL-2.0）许可。
-
-游戏设计、世界观、剧情文本及其他游戏内容采用 Creative Commons Attribution-ShareAlike 4.0 International（CC BY-SA 4.0）许可。
+仓库当前包含完整的游戏设计、七日双语剧情方案、技术架构、内容流程、测试方案和六个月开发路线图，供后续实现使用。

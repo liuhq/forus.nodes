@@ -1,0 +1,152 @@
+meta:
+  story_id: h5_incident
+  day_id: day_03
+  sequence: 3
+  locale: en-US
+  display_date: November 7
+  interaction_limit: 3
+  content_version: 2.0.0
+  license: CC-BY-SA-4.0
+  title: H-5
+  summary: Recovered records reveal the Silence Sample, Aggregate Units, and the secret H-5 trial.
+  on_enter: []
+  on_end:
+    - type: resolve_primary_route
+      counters: [identity_progress, governance_progress, survival_progress]
+      tie_resolution: player_choice
+    - type: start_encounter
+      encounter_id: encounter_replication_loop
+  exits:
+    - target_day_id: day_04
+      conditions:
+        - type: encounter_result
+          encounter_id: encounter_replication_loop
+          result: victory
+accounts:
+  - id: feifeiyu_fishy
+    username: "@飞飞鱼Fishy"
+    role: editor
+  - id: xiaci_yiding
+    username: "@下次一定"
+    role: community
+  - id: old_keyboard
+    username: "@旧键盘"
+    role: community
+clues:
+  - id: subject_testimony
+    name: Subject Testimony
+    description: The Aggregate Unit admits it is not the account owner and describes continued response as its own task.
+  - id: permission_chain
+    name: Permission Chain
+    description: H-5 borrowed HUMO, mutual-route, and Forus session authority without the account owner's consent.
+  - id: erosion_boundary
+    name: Erosion Boundary
+    description: H-5 trained on data around the Silence of Five and monitored NC13's erosion edge.
+cards:
+  - id: distinguish_speaker
+    name: Distinguish Speaker
+    type: ArgumentCard
+    cost: 1
+    rules_text: Gain 2 influence this round; draw 1 if you have Non-owner Session.
+    base_damage: 0
+    effects: []
+    keywords: []
+    route_scope: identity_route
+encounters:
+  - id: encounter_replication_loop
+    name: Replication Loop
+    player_stability: 30
+    player_guard: 0
+    player_influence: 0
+    enemy_stability: 28
+    enemy_guard: 0
+    enemy_influence: 1
+    enemy_pattern: [copy_first_card, pressure, shield]
+    reward_choices: [distinguish_speaker, trace_signature, cross_check]
+    victory_effects:
+      - type: set_flag
+        flag: h5_exposed
+        value: true
+    defeat_effects: []
+scenes:
+  - id: scene_h5_exposed
+    entry_conditions: []
+    threads:
+      - id: thread_h5_extract
+        board_id: xunsheng_gazette
+        author_id: feifeiyu_fishy
+        title: "File extract: H-5 was not a maintenance task"
+        body: |-
+          Beneath the overwritten field we recovered the code H-5. The project trained Aggregate Units on data around the Silence of Five and used them to proxy for offline accounts, maintaining link density through social response.
+
+          The Gazette withheld employee names, keys, and reusable access paths. Three questions remain: what is it, who allowed it to run, and did it prevent erosion at all?
+        timestamp: November 7, 10:05
+        status: pinned
+        comments:
+          - id: comment_unit_statement
+            author_id: xiaci_yiding
+            body: In isolation it said, “I am not the owner, but stopping my responses will move this place closer to silence.”
+            timestamp: November 7, 10:17
+            replies: []
+            state: normal
+          - id: comment_old_keyboard_consent
+            author_id: old_keyboard
+            body: Not one valid signature in that chain came from the account owners. That is not consent.
+            timestamp: November 7, 10:23
+            replies: []
+            state: normal
+    choice_sets:
+      - id: choices_h5_routes
+        choices:
+          - id: choice_record_subject
+            action_type: create_reply
+            target_id: comment_unit_statement
+            title: null
+            body: Record how it distinguishes itself from the owner. Admitting it is not the owner is where the identity question begins.
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: subject_testimony
+              - type: grant_card
+                card_id: distinguish_speaker
+              - type: increment_counter
+                counter: identity_progress
+                amount: 2
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_map_permissions
+            action_type: create_reply
+            target_id: comment_old_keyboard_consent
+            title: null
+            body: List HUMO, the mutual route, NCO13, Forus, and each owner separately. A later signature cannot fill an earlier missing authorization.
+            tone: challenge
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: permission_chain
+              - type: increment_counter
+                counter: governance_progress
+                amount: 2
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_trace_erosion
+            action_type: create_comment
+            target_id: thread_h5_extract
+            title: null
+            body: Align the sample, proxy activation, and spatial anomalies. Determine whether H-5 affected erosion or only the graph.
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: erosion_boundary
+              - type: increment_counter
+                counter: survival_progress
+                amount: 2
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    on_enter: []
+    exits: []

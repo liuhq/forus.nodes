@@ -1,0 +1,133 @@
+meta:
+  story_id: h5_incident
+  day_id: day_02
+  sequence: 2
+  locale: en-US
+  display_date: November 6
+  interaction_limit: 2
+  content_version: 2.0.0
+  license: CC-BY-SA-4.0
+  title: Nine People Online
+  summary: The anomaly expands to nine accounts and a maintenance route with an overwritten signature.
+  on_enter: []
+  on_end: []
+  exits:
+    - target_day_id: day_03
+      conditions: []
+accounts:
+  - id: feifeiyu_fishy
+    username: "@飞飞鱼Fishy"
+    role: editor
+  - id: forus_team
+    username: "@Forus项目组"
+    role: official
+  - id: windbell_7
+    username: "@windbell_7"
+    role: community
+  - id: nco13_bulletin
+    username: "@NCO13发布"
+    role: official
+clues:
+  - id: overwritten_signature
+    name: Overwritten Signature
+    description: The sessions were issued by an external maintenance route whose subject field was overwritten repeatedly.
+  - id: link_density_shift
+    name: Link-density Shift
+    description: Local link density in NC13 rose with the proxy accounts' activity.
+cards:
+  - id: trace_signature
+    name: Trace Signature
+    type: EvidenceCard
+    cost: 1
+    rules_text: Base damage 4; gain 1 influence this round if the enemy has noise.
+    base_damage: 4
+    effects: []
+    keywords: []
+    route_scope: governance_route
+encounters: []
+scenes:
+  - id: scene_nine_accounts
+    entry_conditions: []
+    threads:
+      - id: thread_nine_accounts
+        board_id: xunsheng_gazette
+        author_id: feifeiyu_fishy
+        title: "Anomalous activity audit: neither account theft nor one account"
+        body: |-
+          The Gazette confirmed nine offline accounts checking in, replying, and voting on schedule. They seek no money and change no passwords. They only maintain “social activity.”
+
+          Their sessions came through a maintenance route marked NC7, with its issuing subject overwritten. A source label is not yet a finding of responsibility.
+        timestamp: November 6, 09:10
+        status: pinned
+        comments:
+          - id: comment_forus_route
+            author_id: forus_team
+            body: Forus suspended the route at the application layer and preserved signature fragments from before and after the overwrite.
+            timestamp: November 6, 09:18
+            replies: []
+            state: normal
+          - id: comment_windbell_density
+            author_id: windbell_7
+            body: NC7's public graph shows NC13 link density briefly rising after the proxy activity began.
+            timestamp: November 6, 09:24
+            replies: []
+            state: normal
+          - id: comment_nco_denial
+            author_id: nco13_bulletin
+            body: NCO13 authorized no account-proxy trial. A permission audit is underway.
+            timestamp: November 6, 09:31
+            replies: []
+            state: normal
+    choice_sets:
+      - id: choices_nine_accounts
+        choices:
+          - id: choice_restore_signature
+            action_type: create_reply
+            target_id: comment_forus_route
+            title: null
+            body: Compare signatures and timestamps before and after the overwrite. Establish who could issue them before assigning blame.
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: overwritten_signature
+              - type: grant_card
+                card_id: trace_signature
+              - type: increment_counter
+                counter: governance_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_measure_density
+            action_type: create_reply
+            target_id: comment_windbell_density
+            title: null
+            body: Preserve comparable data from before and after each account activates. Check whether the rise is real connection or repeated replies.
+            tone: investigate
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: link_density_shift
+              - type: increment_counter
+                counter: survival_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+          - id: choice_compare_memories
+            action_type: create_comment
+            target_id: thread_nine_accounts
+            title: null
+            body: Ask about context from public events. Copying a voice does not provide the experience behind it.
+            tone: challenge
+            conditions: []
+            effects:
+              - type: increment_counter
+                counter: identity_progress
+                amount: 1
+            once: true
+            narrative_scope: main
+            interaction_cost: 1
+    on_enter: []
+    exits: []
