@@ -31,19 +31,19 @@ HUMO 的秘密试验 H-5（`h_5`）使用来自 NC5 的静默样本（Silence Sa
 
 ## 账号表
 
-| 显示用户名 | 稳定 ID | 职能 |
-|---|---|---|
-| `@飞飞鱼Fishy` | `feifeiyu_fishy` | 浔声小报主编 |
-| `@下次一定` | `xiaci_yiding` | 首位公开受影响用户 |
-| `@NCO13发布` | `nco13_bulletin` | NCO13 官方公告 |
-| `@寰宇Universal` | `universal_official` | 寰宇组织账号 |
-| `@Forus项目组` | `forus_team` | Forus 应用账号 |
-| `@HUMO审计` | `humo_audit` | HUMO 事件审计账号 |
-| `@焦糖少冰` | `caramel_less_ice` | 社区用户 |
-| `@windbell_7` | `windbell_7` | NC7 社区用户 |
-| `@旧键盘` | `old_keyboard` | 社区用户 |
-| `@Mori` | `mori` | 社区用户 |
-| `@不想排队` | `skip_the_queue` | 社区用户 |
+| 显示用户名       | 稳定 ID              | 职能               |
+| ---------------- | -------------------- | ------------------ |
+| `@飞飞鱼Fishy`   | `feifeiyu_fishy`     | 浔声小报主编       |
+| `@下次一定`      | `xiaci_yiding`       | 首位公开受影响用户 |
+| `@NCO13发布`     | `nco13_bulletin`     | NCO13 官方公告     |
+| `@寰宇Universal` | `universal_official` | 寰宇组织账号       |
+| `@Forus项目组`   | `forus_team`         | Forus 应用账号     |
+| `@HUMO审计`      | `humo_audit`         | HUMO 事件审计账号  |
+| `@焦糖少冰`      | `caramel_less_ice`   | 社区用户           |
+| `@windbell_7`    | `windbell_7`         | NC7 社区用户       |
+| `@旧键盘`        | `old_keyboard`       | 社区用户           |
+| `@Mori`          | `mori`               | 社区用户           |
+| `@不想排队`      | `skip_the_queue`     | 社区用户           |
 
 玩家账号通过变量 `{{player_name}}` 渲染。用户名在中英文界面保持原样。
 
