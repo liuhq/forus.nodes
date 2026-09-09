@@ -1,152 +1,182 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_03
   sequence: 3
   locale: en-US
   display_date: November 7
-  interaction_limit: 3
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: H-5
-  summary: Recovered records reveal the Silence Sample, Aggregate Units, and the secret H-5 trial.
-  on_enter: []
-  on_end:
-    - type: resolve_primary_route
-      counters: [identity_progress, governance_progress, survival_progress]
-      tie_resolution: player_choice
-    - type: start_encounter
-      encounter_id: encounter_replication_loop
-  exits:
-    - target_day_id: day_04
-      conditions:
-        - type: encounter_result
-          encounter_id: encounter_replication_loop
-          result: victory
+  title: Full Context or Silence
+  summary: Complete drafts begin to appear. Whether the target trusts the player determines whether the timeline can be recovered.
+  on_end: []
 accounts:
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
-  - id: xiaci_yiding
-    username: "@下次一定"
+  - id: target_student_17
+    username: "@AfterStudyHall"
+    role: target
+  - id: source_keeper
+    username: "@DraftKeeper"
     role: community
-  - id: old_keyboard
-    username: "@旧键盘"
+  - id: contest_observer
+    username: "@ContestObserver"
     role: community
 clues:
-  - id: subject_testimony
-    name: Subject Testimony
-    description: The Aggregate Unit admits it is not the account owner and describes continued response as its own task.
-  - id: permission_chain
-    name: Permission Chain
-    description: H-5 borrowed HUMO, mutual-route, and Forus session authority without the account owner's consent.
-  - id: erosion_boundary
-    name: Erosion Boundary
-    description: H-5 trained on data around the Silence of Five and monitored NC13's erosion edge.
-cards:
-  - id: distinguish_speaker
-    name: Distinguish Speaker
-    type: ArgumentCard
-    cost: 1
-    rules_text: Gain 2 influence this round; draw 1 if you have Non-owner Session.
-    base_damage: 0
-    effects: []
-    keywords: []
-    route_scope: identity_route
-encounters:
-  - id: encounter_replication_loop
-    name: Replication Loop
-    player_stability: 30
-    player_guard: 0
-    player_influence: 0
-    enemy_stability: 28
-    enemy_guard: 0
-    enemy_influence: 1
-    enemy_pattern: [copy_first_card, pressure, shield]
-    reward_choices: [distinguish_speaker, trace_signature, cross_check]
-    victory_effects:
-      - type: set_flag
-        flag: h5_exposed
-        value: true
-    defeat_effects: []
-scenes:
-  - id: scene_h5_exposed
-    entry_conditions: []
+  - id: shared_draft_history
+    name: Shared draft history
+    description: The two students exchanged drafts; similarity alone does not prove theft.
+evidence:
+  - id: authorization_record
+    name: Authorization record
+    description: Public credit, exchange, and authorization records from the versions.
+    max_confidence: 3
+direct_messages: []
+phases:
+  - id: phase_01_two_drafts
+    sequence: 1
+    title: Two drafts
     threads:
-      - id: thread_h5_extract
-        board_id: xunsheng_gazette
-        author_id: feifeiyu_fishy
-        title: "File extract: H-5 was not a maintenance task"
-        body: |-
-          Beneath the overwritten field we recovered the code H-5. The project trained Aggregate Units on data around the Silence of Five and used them to proxy for offline accounts, maintaining link density through social response.
-
-          The Gazette withheld employee names, keys, and reusable access paths. Three questions remain: what is it, who allowed it to run, and did it prevent erosion at all?
-        timestamp: November 7, 10:05
+      - id: thread_two_drafts
+        board_id: contest_watch
+        author_id: source_keeper
+        title: What is different between the drafts?
+        body: One version shows that the two students exchanged design ideas; another has its date and credit line cut away.
+        timestamp: November 7 09:00
         status: pinned
-        comments:
-          - id: comment_unit_statement
-            author_id: xiaci_yiding
-            body: In isolation it said, “I am not the owner, but stopping my responses will move this place closer to silence.”
-            timestamp: November 7, 10:17
-            replies: []
-            state: normal
-          - id: comment_old_keyboard_consent
-            author_id: old_keyboard
-            body: Not one valid signature in that chain came from the account owners. That is not consent.
-            timestamp: November 7, 10:23
-            replies: []
-            state: normal
+        comments: []
     choice_sets:
-      - id: choices_h5_routes
+      - id: choices_two_drafts
         choices:
-          - id: choice_record_subject
-            action_type: create_reply
-            target_id: comment_unit_statement
-            title: null
-            body: Record how it distinguishes itself from the owner. Admitting it is not the owner is where the identity question begins.
-            tone: investigate
-            conditions: []
-            effects:
-              - type: grant_clue
-                clue_id: subject_testimony
-              - type: grant_card
-                card_id: distinguish_speaker
-              - type: increment_counter
-                counter: identity_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_map_permissions
-            action_type: create_reply
-            target_id: comment_old_keyboard_consent
-            title: null
-            body: List HUMO, the mutual route, NCO13, Forus, and each owner separately. A later signature cannot fill an earlier missing authorization.
-            tone: challenge
-            conditions: []
-            effects:
-              - type: grant_clue
-                clue_id: permission_chain
-              - type: increment_counter
-                counter: governance_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_trace_erosion
+          - id: choice_compare_versions
             action_type: create_comment
-            target_id: thread_h5_extract
+            target_id: thread_two_drafts
             title: null
-            body: Align the sample, proxy activation, and spatial anomalies. Determine whether H-5 affected erosion or only the graph.
-            tone: investigate
-            conditions: []
+            body: Compare the complete versions first. This could be theft, collaboration, or a version error.
+            conditions:
+              - type: evidence_confidence_at_least
+                evidence_id: draft_version
+                confidence: 1
             effects:
               - type: grant_clue
-                clue_id: erosion_boundary
-              - type: increment_counter
-                counter: survival_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+                clue_id: shared_draft_history
+              - type: grant_evidence
+                evidence_id: authorization_record
+                initial_confidence: 1
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+          - id: choice_repeat_theft_claim
+            action_type: react_agree
+            target_id: thread_two_drafts
+            title: Agree that it is theft
+            body: null
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+  - id: phase_02_accountability_boundary
+    sequence: 2
+    title: The boundary of accountability
+    threads:
+      - id: thread_accountability_boundary
+        board_id: general_discussion
+        author_id: contest_observer
+        title: Does a mistake justify every consequence?
+        body: Replies collapse “she should apologize” into “she should be publicly punished.”
+        timestamp: November 7 13:30
+        status: normal
+        comments: []
+    choice_sets:
+      - id: choices_accountability_boundary
+        choices:
+          - id: choice_set_boundary
+            action_type: create_reply
+            target_id: thread_accountability_boundary
+            title: null
+            body: She needs to apologize for the wrong accusation, but that does not justify sharing her school and photos.
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: 1
+          - id: choice_accept_all_punishment
+            action_type: create_reply
+            target_id: thread_accountability_boundary
+            title: null
+            body: Since she was wrong, she should accept every consequence.
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+              - type: increment_hidden_value
+                value: player_exposure
+                amount: 1
+          - id: choice_verify_first
+            action_type: react_disagree
+            target_id: thread_accountability_boundary
+            title: Disagree with judging first
+            body: null
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+    direct_messages: []
+    on_enter: []
+    on_end: []
+  - id: phase_03_branch_window
+    sequence: 3
+    title: The branch window
+    threads: []
+    choice_sets: []
+    direct_messages:
+      - id: dm_target_full_timeline
+        sender_id: target_student_17
+        participant_ids: [player, target_student_17]
+        visibility: private
+        trigger_conditions:
+          - type: hidden_value_at_least
+            value: target_safety
+            amount: 2
+        arrival: current_phase
+        messages:
+          - id: dm_target_full_timeline_message
+            author_id: target_student_17
+            body: I can tell you the full timeline, but please do not publish some of it. I did make the wrong call, and I apologized to her.
+            timestamp: November 7 19:00
+            state: unread
+        choice_sets:
+          - id: choices_target_full_timeline
+            choices:
+              - id: choice_respect_private_timeline
+                action_type: reply_direct_message
+                target_id: dm_target_full_timeline_message
+                title: Respect the privacy boundary
+                body: Tell me which material can be public and which must remain private.
+                conditions: []
+                effects:
+                  - type: set_private_flag
+                    flag: full_timeline_shared
+                    value: true
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: 1
+              - id: choice_pressure_total_disclosure
+                action_type: reply_direct_message
+                target_id: dm_target_full_timeline_message
+                title: Demand full disclosure
+                body: If you do not publish everything, people will not believe you.
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: -1
+    on_enter: []
+    on_end: []
+summary:
+  title: Full Context or Silence
+  body: The player's handling of the third day determines whether the target continues to trust them.

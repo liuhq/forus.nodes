@@ -1,10 +1,10 @@
-id: h5_incident
-content_version: 2.0.0
+id: online_harassment_case
+content_version: 3.0.0
 duration_days: 7
 boards:
   - id: general_discussion
     kind: general
-  - id: xunsheng_gazette
+  - id: contest_watch
     kind: story
 days:
   - id: day_01
@@ -21,26 +21,16 @@ days:
     sequence: 6
   - id: day_07
     sequence: 7
-routes:
-  - id: identity_route
-    progress_counter: identity_progress
-    required_clues: [non_person_session, subject_testimony, account_separation_proof]
-  - id: governance_route
-    progress_counter: governance_progress
-    required_clues: [overwritten_signature, permission_chain, public_audit_manifest]
-  - id: survival_route
-    progress_counter: survival_progress
-    required_clues: [link_density_shift, erosion_boundary, independent_runtime_proof]
 endings:
-  - id: new_presence
-    kind: "true"
-    priority: 1
-  - id: full_disclosure
-    kind: happy
-    priority: 2
-  - id: permanent_seal
+  - id: target_rescued
     kind: good
+    priority: 1
+  - id: harassment_stopped
+    kind: good
+    priority: 2
+  - id: target_died
+    kind: bad
     priority: 3
-  - id: everyone_online
+  - id: player_targeted
     kind: bad
     priority: 4

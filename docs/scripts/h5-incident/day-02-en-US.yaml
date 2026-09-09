@@ -1,133 +1,158 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_02
   sequence: 2
   locale: en-US
   display_date: November 6
-  interaction_limit: 2
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: Nine People Online
-  summary: The anomaly expands to nine accounts and a maintenance route with an overwritten signature.
-  on_enter: []
+  title: Deletion Is Not Clarification
+  summary: Deleting the post does not end the dispute. Public versions begin to reveal the missing timeline.
   on_end: []
-  exits:
-    - target_day_id: day_03
-      conditions: []
 accounts:
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
-  - id: forus_team
-    username: "@Forus项目组"
-    role: official
-  - id: windbell_7
-    username: "@windbell_7"
+  - id: target_student_17
+    username: "@AfterStudyHall"
+    role: target
+  - id: source_keeper
+    username: "@DraftKeeper"
     role: community
-  - id: nco13_bulletin
-    username: "@NCO13发布"
-    role: official
+  - id: contest_observer
+    username: "@ContestObserver"
+    role: community
 clues:
-  - id: overwritten_signature
-    name: Overwritten Signature
-    description: The sessions were issued by an external maintenance route whose subject field was overwritten repeatedly.
-  - id: link_density_shift
-    name: Link-density Shift
-    description: Local link density in NC13 rose with the proxy accounts' activity.
-cards:
-  - id: trace_signature
-    name: Trace Signature
-    type: EvidenceCard
-    cost: 1
-    rules_text: Base damage 4; gain 1 influence this round if the enemy has noise.
-    base_damage: 4
-    effects: []
-    keywords: []
-    route_scope: governance_route
-encounters: []
-scenes:
-  - id: scene_nine_accounts
-    entry_conditions: []
+  - id: draft_gap
+    name: Missing draft context
+    description: The circulating comparison omits an intermediate version and authorization context.
+evidence:
+  - id: draft_version
+    name: Draft version record
+    description: Public versions, timestamps, and credit records for the contest work.
+    max_confidence: 3
+direct_messages: []
+phases:
+  - id: phase_01_deleted_post
+    sequence: 1
+    title: The deleted record
     threads:
-      - id: thread_nine_accounts
-        board_id: xunsheng_gazette
-        author_id: feifeiyu_fishy
-        title: "Anomalous activity audit: neither account theft nor one account"
-        body: |-
-          The Gazette confirmed nine offline accounts checking in, replying, and voting on schedule. They seek no money and change no passwords. They only maintain “social activity.”
-
-          Their sessions came through a maintenance route marked NC7, with its issuing subject overwritten. A source label is not yet a finding of responsibility.
-        timestamp: November 6, 09:10
-        status: pinned
-        comments:
-          - id: comment_forus_route
-            author_id: forus_team
-            body: Forus suspended the route at the application layer and preserved signature fragments from before and after the overwrite.
-            timestamp: November 6, 09:18
-            replies: []
-            state: normal
-          - id: comment_windbell_density
-            author_id: windbell_7
-            body: NC7's public graph shows NC13 link density briefly rising after the proxy activity began.
-            timestamp: November 6, 09:24
-            replies: []
-            state: normal
-          - id: comment_nco_denial
-            author_id: nco13_bulletin
-            body: NCO13 authorized no account-proxy trial. A permission audit is underway.
-            timestamp: November 6, 09:31
-            replies: []
-            state: normal
+      - id: thread_deleted_post
+        board_id: contest_watch
+        author_id: contest_observer
+        title: Does deleting it prove guilt?
+        body: The deletion time is being described as an admission. Cached copies of the post are still spreading.
+        timestamp: November 6 08:40
+        status: normal
+        comments: []
     choice_sets:
-      - id: choices_nine_accounts
+      - id: choices_deleted_post
         choices:
-          - id: choice_restore_signature
-            action_type: create_reply
-            target_id: comment_forus_route
-            title: null
-            body: Compare signatures and timestamps before and after the overwrite. Establish who could issue them before assigning blame.
-            tone: investigate
-            conditions: []
-            effects:
-              - type: grant_clue
-                clue_id: overwritten_signature
-              - type: grant_card
-                card_id: trace_signature
-              - type: increment_counter
-                counter: governance_progress
-                amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_measure_density
-            action_type: create_reply
-            target_id: comment_windbell_density
-            title: null
-            body: Preserve comparable data from before and after each account activates. Check whether the rise is real connection or repeated replies.
-            tone: investigate
-            conditions: []
-            effects:
-              - type: grant_clue
-                clue_id: link_density_shift
-              - type: increment_counter
-                counter: survival_progress
-                amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_compare_memories
+          - id: choice_compare_delete_time
             action_type: create_comment
-            target_id: thread_nine_accounts
+            target_id: thread_deleted_post
             title: null
-            body: Ask about context from public events. Copying a voice does not provide the experience behind it.
-            tone: challenge
+            body: Deleting a post proves that she stopped spreading it, not that she admits every claim being made.
             conditions: []
             effects:
-              - type: increment_counter
-                counter: identity_progress
+              - type: increment_hidden_value
+                value: truth_confidence
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+          - id: choice_agree_delete_guilt
+            action_type: react_agree
+            target_id: thread_deleted_post
+            title: Agree that deletion proves guilt
+            body: null
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+  - id: phase_02_draft_records
+    sequence: 2
+    title: The version record
+    threads:
+      - id: thread_draft_records
+        board_id: contest_watch
+        author_id: source_keeper
+        title: One page is still missing
+        body: Public drafts show that the two students exchanged design ideas, but the authorization record is not organized yet.
+        timestamp: November 6 12:20
+        status: pinned
+        comments: []
+    choice_sets:
+      - id: choices_draft_records
+        choices:
+          - id: choice_request_public_versions
+            action_type: create_reply
+            target_id: thread_draft_records
+            title: null
+            body: Organize the public versions and timeline first. Do not use private messages as public evidence.
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: draft_gap
+              - type: grant_evidence
+                evidence_id: draft_version
+                initial_confidence: 1
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+          - id: choice_amplify_accusation
+            action_type: create_reply
+            target_id: thread_draft_records
+            title: null
+            body: Since she deleted the post, she should apologize publicly before discussing versions.
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: player_exposure
+                amount: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages:
+      - id: dm_target_admission
+        sender_id: target_student_17
+        participant_ids: [player, target_student_17]
+        visibility: private
+        trigger_conditions:
+          - type: private_flag_equals
+            flag: private_boundary_respected
+            value: true
+        arrival: next_phase
+        messages:
+          - id: dm_target_admission_message
+            author_id: target_student_17
+            body: I did think she stole the work. I posted before checking everything, apologized privately, and was afraid to say so publicly.
+            timestamp: November 6 19:10
+            state: unread
+        choice_sets:
+          - id: choices_target_admission
+            choices:
+              - id: choice_accept_accountability
+                action_type: reply_direct_message
+                target_id: dm_target_admission_message
+                title: Set an accountability boundary
+                body: You need to apologize for the wrong accusation, but that does not give anyone permission to spread your personal information.
+                conditions: []
+                effects:
+                  - type: set_private_flag
+                    flag: target_accountability_acknowledged
+                    value: true
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: 1
+              - id: choice_pressure_public_apology
+                action_type: reply_direct_message
+                target_id: dm_target_admission_message
+                title: Demand an immediate public apology
+                body: You should publish every private detail now so people will believe you.
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: -1
+    on_enter: []
+    on_end: []
+summary:
+  title: Deletion Is Not Clarification
+  body: The target did make a mistake, but the complete version still requires public verification.

@@ -1,134 +1,232 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_01
   sequence: 1
   locale: en-US
   display_date: November 5
-  interaction_limit: 2
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: I Did Not Post That
-  summary: A deactivated account keeps posting and passes owner verification.
-  on_enter: []
-  on_end:
-    - type: start_encounter
-      encounter_id: encounter_session_noise
-  exits:
-    - target_day_id: day_02
-      conditions:
-        - type: encounter_result
-          encounter_id: encounter_session_noise
-          result: victory
+  title: The Wrong Accusation Appears
+  summary: A high-school girl once accused a classmate of stealing a design. After she deleted the post, screenshots and personal information began spreading.
+  on_end: []
 accounts:
-  - id: xiaci_yiding
-    username: "@下次一定"
+  - id: target_student_17
+    username: "@AfterStudyHall"
+    role: target
+  - id: source_keeper
+    username: "@DraftKeeper"
     role: community
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
-  - id: forus_team
-    username: "@Forus项目组"
-    role: official
+  - id: cropped_context
+    username: "@ScreenshotDrop"
+    role: community
+  - id: trend_reposter
+    username: "@TrendRelay"
+    role: media
 clues:
-  - id: non_person_session
-    name: Non-owner Session
-    description: Two replies from one account came from different sessions, one not owned by the account holder.
-cards: []
-encounters:
-  - id: encounter_session_noise
-    name: Session Noise
-    player_stability: 30
-    player_guard: 0
-    player_influence: 0
-    enemy_stability: 16
-    enemy_guard: 0
-    enemy_influence: 0
-    enemy_pattern: [observe, pressure]
-    reward_choices: [verify_source, edit_wording, ask_details]
-    victory_effects:
-      - type: set_flag
-        flag: day_01_verified
-        value: true
-    defeat_effects: []
-scenes:
-  - id: scene_first_denial
-    entry_conditions: []
+  - id: cropped_context
+    name: Cropped context
+    description: The circulating screenshot is missing its surrounding messages and full timeline.
+  - id: target_admitted_error
+    name: Private admission
+    description: The target admits she publicly accused someone before checking the complete material.
+evidence:
+  - id: public_post_timeline
+    name: Public post timeline
+    description: Public timestamps for the original post, deletion, and reposts.
+    max_confidence: 3
+direct_messages: []
+phases:
+  - id: phase_01_help_post
+    sequence: 1
+    title: The help post
     threads:
-      - id: thread_first_denial
-        board_id: xunsheng_gazette
-        author_id: xiaci_yiding
-        title: I did not write the last three weeks of posts
+      - id: thread_help_post
+        board_id: contest_watch
+        author_id: target_student_17
+        title: They say I stole the work
         body: |-
-          I deactivated this account. I returned today to find “me” replying every day, with my phrasing and punctuation, all marked as owner-verified.
+          I deleted the earlier post. Now people are sharing a screenshot everywhere and saying I have always excluded others.
 
-          I wrote this post myself. If “I” deny it later, check the session time first.
-        timestamp: November 5, 08:14
+          I know I should explain, but please do not share my school or photos.
+        timestamp: November 5 08:20
         status: pinned
         comments:
-          - id: comment_proxy_denial
-            author_id: xiaci_yiding
-            body: It was only a sync delay. I never deactivated the account.
-            timestamp: November 5, 08:21
-            replies:
-              - id: reply_owner_marks_denial
-                parent_id: comment_proxy_denial
-                author_id: xiaci_yiding
-                body: I did not write that. The session is not on my device list.
-                timestamp: November 5, 08:22
-                state: normal
+          - id: comment_privacy_support
+            author_id: source_keeper
+            body: Stop spreading personal information first. The work dispute can be checked; a school and a photo are not evidence.
+            timestamp: November 5 08:28
+            replies: []
             state: normal
-          - id: comment_fishy_invites
-            author_id: feifeiyu_fishy
-            body: The Gazette saved the public timeline. Please verify only evidence safe to disclose.
-            timestamp: November 5, 08:27
+          - id: comment_demand_proof
+            author_id: cropped_context
+            body: Deleting the post proves she is hiding something. She should publish everything first.
+            timestamp: November 5 08:31
             replies: []
             state: normal
     choice_sets:
-      - id: choices_first_denial
+      - id: choices_help_post
         choices:
-          - id: choice_compare_sessions
+          - id: choice_support_safety
             action_type: create_reply
-            target_id: comment_fishy_invites
+            target_id: thread_help_post
             title: null
-            body: Compare session times and device lists first. Do not make the owner publish identity documents again.
-            tone: investigate
+            body: Check that you are safe first. You can say what help you need without proving your innocence immediately.
             conditions: []
             effects:
-              - type: grant_clue
-                clue_id: non_person_session
-              - type: increment_counter
-                counter: identity_progress
+              - type: set_flag
+                flag: target_notice_pending
+                value: true
+              - type: increment_hidden_value
+                value: target_safety
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_preserve_logs
+          - id: choice_demand_private_proof
             action_type: create_reply
-            target_id: comment_proxy_denial
+            target_id: thread_help_post
             title: null
-            body: Freeze new sessions and preserve issuance logs. Passing verification does not make the permission source legitimate.
-            tone: cautious
+            body: Send the complete screenshots and drafts so I can help explain this.
             conditions: []
             effects:
-              - type: increment_counter
-                counter: governance_progress
-                amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_check_activity
-            action_type: create_comment
-            target_id: thread_first_denial
-            title: null
-            body: Compare connection density before and after the anomalous posts. Check whether these accounts are maintaining social response on purpose.
-            tone: investigate
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+          - id: choice_agree_privacy
+            action_type: react_agree
+            target_id: comment_privacy_support
+            title: Agree to protect privacy
+            body: null
             conditions: []
             effects:
-              - type: increment_counter
-                counter: survival_progress
+              - type: set_flag
+                flag: target_notice_pending
+                value: true
+              - type: increment_hidden_value
+                value: target_safety
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+          - id: choice_disagree_public_punishment
+            action_type: react_disagree
+            target_id: comment_demand_proof
+            title: Disagree with public punishment
+            body: null
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: target_safety
+                amount: 1
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+  - id: phase_02_screenshot_wave
+    sequence: 2
+    title: The screenshot spreads
+    threads:
+      - id: thread_cropped_screenshot
+        board_id: general_discussion
+        author_id: cropped_context
+        title: She admitted it herself
+        body: |-
+          This chat proves she has done this before. Stop making excuses for her.
+
+          Replies begin posting the target's school, photos, and old account links.
+        timestamp: November 5 13:10
+        status: normal
+        comments: []
+      - id: thread_trend_summary
+        board_id: general_discussion
+        author_id: trend_reposter
+        title: Campus art contest controversy
+        body: A summary post keeps only the most shareable screenshots and comments, with no complete versions of the work.
+        timestamp: November 5 15:00
+        status: normal
+        comments: []
+    choice_sets:
+      - id: choices_screenshot_wave
+        choices:
+          - id: choice_save_public_timeline
+            action_type: create_comment
+            target_id: thread_cropped_screenshot
+            title: null
+            body: I will save the public links and timeline first, without copying personal information into the replies.
+            conditions: []
+            effects:
+              - type: grant_evidence
+                evidence_id: public_post_timeline
+                initial_confidence: 1
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+          - id: choice_quote_screenshot
+            action_type: create_reply
+            target_id: thread_cropped_screenshot
+            title: null
+            body: Quote the screenshot directly and demand that she explain every detail.
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: player_exposure
+                amount: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages:
+      - id: dm_target_first_contact
+        sender_id: target_student_17
+        participant_ids: [player, target_student_17]
+        visibility: private
+        trigger_conditions:
+          - type: flag_equals
+            flag: target_notice_pending
+            value: true
+        arrival: next_phase
+        messages:
+          - id: dm_target_first_message
+            author_id: target_student_17
+            body: Are you the person who said, “Check that I am safe” first? I do not know whether I should tell you what happened.
+            timestamp: November 5 18:20
+            state: unread
+        choice_sets:
+          - id: choices_target_first_contact
+            choices:
+              - id: choice_reply_check_safety
+                action_type: reply_direct_message
+                target_id: dm_target_first_message
+                title: Check safety first
+                body: Tell me whether you are safe first. You do not have to prove your innocence immediately.
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: 1
+                  - type: set_private_flag
+                    flag: target_trust_started
+                    value: true
+              - id: choice_reply_request_proof
+                action_type: reply_direct_message
+                target_id: dm_target_first_message
+                title: Ask for proof first
+                body: Send me the complete screenshots and drafts so I can help you.
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: -1
+              - id: choice_reply_private_boundary
+                action_type: reply_direct_message
+                target_id: dm_target_first_message
+                title: Promise privacy
+                body: I will not forward your private messages.
+                conditions: []
+                effects:
+                  - type: set_private_flag
+                    flag: private_boundary_respected
+                    value: true
+    on_enter: []
+    on_end: []
+  - id: phase_03_first_contact
+    sequence: 3
+    title: The first message
+    threads: []
+    choice_sets: []
+    direct_messages: []
+    on_enter: []
+    on_end: []
+summary:
+  title: Deletion is not clarification
+  body: The wrong accusation is real, but the spreading screenshot and personal information have already gone beyond accountability.

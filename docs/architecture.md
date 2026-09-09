@@ -2,77 +2,44 @@
 
 ## 架构目标
 
-项目采用前端主导的单页应用。游戏规则、日期推进、战斗和本地存档均在浏览器执行；后端只负责账号会话与版本化云存档。WebGL 是可缺席的适配包，不得成为任何核心模块的依赖。
+项目采用前端主导的单页叙事应用。内容包、阶段推进、公开互动、私信、隐藏数值和本地存档在浏览器执行；当前仓库尚未实现这些运行时，本阶段先固化规格和内容。
 
 ## 前端模块
 
-- 应用外壳（`AppShell`）：导航、路由、错误边界和首次进入/继续周目。
-- 论坛域（`ForumDomain`）：版块、帖子树、通知、档案和个人页。
-- 故事运行时（`StoryRuntime`）：加载单故事包、日期额度、条件、效果与出口。
-- 战斗域（`CombatDomain`）：固定种子、三堆牌、双方数值、意图与结算。
-- 内容仓库（`ContentRepository`）：按日期与语言加载编译 JSON。
-- 存档域（`SaveDomain`）：IndexedDB、迁移、云同步与冲突。
-- 视效端口（`EffectsPort`）：声明语义视效事件并默认使用无操作实现。
+- `AppShell`：Forus 导航、日期、阶段和私信入口。
+- `ForumDomain`：版块、帖子树、评论、回复、赞同和反对。
+- `StoryRuntime`：阶段刷新、条件、效果、隐藏数值和结局分支。
+- `DirectMessageDomain`：触发式私信列表、对话框、预设回复和私密状态。
+- `EvidenceDomain`：线索、证物和置信度。
+- `SaveDomain`：阶段、私信和每日结算的本地存档。
 
-路由建议：
+删除 `CombatDomain`、战斗路由和战斗存档。
+
+## 推荐路由
 
 ```text
 /
 /boards/:boardId
 /threads/:threadId
-/compose/:choiceSetId
-/combat/:encounterId
 /profile
-/profile/archive/:runId
+/messages
 /settings
-/auth/login
-/auth/register
 ```
 
-首次访问 `/` 自动创建或恢复《H-5》周目。不存在故事目录、故事选择路由和第二故事访问条件。
+私信可以使用 `/messages` 页面，并在页面内以对话框打开具体线程。
 
-## 状态与数据流
+## 数据流
 
 ```text
-日期内容 + 当前存档 + 玩家动作
+日期内容 + 当前阶段 + 存档 + 玩家互动
               ↓
-      条件判定与事务式效果
+       条件判定与事务效果
               ↓
-论坛状态 / 路线 / 牌组 / 战斗
+论坛状态 / 私信 / 线索 / 证物 / 隐藏数值
               ↓
-       日期出口 → 本地保存 → 可选云同步
+       查看最新 → 阶段结算 → 每日总结
 ```
 
-- 可序列化状态是唯一事实来源，React 组件不得私存剧情判定状态。
-- 随机行为由 `run_seed` 派生，存档同时保存随机序列位置。
-- 已发布楼层保存选项 ID；切换语言后按 ID 读取对应文本。
-- 日期结束效果使用幂等标记，战斗重试不能再次执行。
-- 运行时遍历 `StoryPackage.days`，不允许使用常量 7 判断完成。
+## 内容加载
 
-## 可选视效架构
-
-```text
-Core UI / Story / Combat
-          ↓ semantic events
-     EffectsAdapter
-       ↙         ↘
-NoopEffectsAdapter  optional WebGLEffectsAdapter
-```
-
-`EffectsAdapter` 只暴露 `mount`、`emit`、`setQuality`、`dispose`。事件包含页面切换、异常显现、出牌、受击、日期变化和结局；载荷只能使用核心定义的可序列化类型。
-
-核心包默认注册 `NoopEffectsAdapter`。WebGL 包通过动态导入和运行时注册加载，核心代码不得导入 Three.js 或 React Three Fiber。缺包、初始化失败、上下文丢失或关闭视效时回退到 DOM/CSS，不阻断操作、不改变状态。
-
-## 内容构建
-
-构建脚本执行 YAML schema 校验、中英结构对齐、引用校验、日期连续性、路线与结局可达性分析，再输出按日期和语言拆分的 JSON。`content_version` 与 `schema_version` 独立。
-
-## 后端接口
-
-API 使用 `/api/v1`：注册、登录、登出、会话查询、读取存档和带 `If-Match` 的完整存档替换。修订冲突返回 `409 save_conflict`，客户端让玩家选择本地或云端完整覆盖。
-
-密码使用 Argon2id；会话仅存令牌哈希；Cookie 设置 `HttpOnly`、`Secure`、`SameSite=Lax`。验证 Origin、限制认证频率和请求体大小，日志不得记录密码、令牌或完整存档。
-
-## 部署
-
-前端静态产物与 Go API 同源提供。基础生产构建不得包含或要求 WebGL 包。结构化日志记录请求 ID、耗时、状态码、限流和冲突计数；SQLite 启用外键、WAL 和忙等待，并在发布前备份。
+内容管线校验中英文结构、阶段顺序、引用、私信触发条件、证物置信度和四个结局的可达性。`content_version` 与存档 `schema_version` 独立。

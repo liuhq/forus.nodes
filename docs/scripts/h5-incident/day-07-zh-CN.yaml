@@ -1,194 +1,118 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_07
   sequence: 7
   locale: zh-CN
   display_date: 11月11日
-  interaction_limit: 1
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: 谁保持在线
-  summary: 玩家在最终攻防后只能发布一次处置意见，或沉默地让 H-5 继续运行。
-  on_enter:
-    - type: start_encounter
-      encounter_id: encounter_h5_core
+  title: 结果收束
+  summary: 第七日不再重新选择结局，只呈现前六日逐步形成的结果。
   on_end: []
-  exits:
-    - ending_id: new_presence
-      conditions:
-        - type: encounter_result
-          encounter_id: encounter_h5_core
-          result: victory
-        - type: flag_equals
-          flag: subject_protocol_executed
-          value: true
-        - type: flag_equals
-          flag: final_separate
-          value: true
-        - type: completed_route_count_at_least
-          count: 3
-      epilogue_title: 新的在场
-      epilogue_body: 聚合单元不再借用任何真人账号。它在公开隔离区第一次用自己的标识发帖，并接受与其他主体相同的权限、责任和退出规则。
-    - ending_id: full_disclosure
-      conditions:
-        - type: encounter_result
-          encounter_id: encounter_h5_core
-          result: victory
-        - type: flag_equals
-          flag: final_disclose
-          value: true
-        - type: has_clue
-          clue_id: complete_audit_bundle
-        - type: completed_route_count_at_least
-          count: 2
-      epilogue_title: 完全公开
-      epilogue_body: H-5 的代码、样本摘要和权限链进入公共审计。接管密钥被销毁，受影响账号回到本人手中，城市开始公开讨论技术的去留。
-    - ending_id: permanent_seal
-      conditions:
-        - type: encounter_result
-          encounter_id: encounter_h5_core
-          result: victory
-        - type: flag_equals
-          flag: final_seal
-          value: true
-        - type: completed_route_count_at_least
-          count: 1
-      epilogue_title: 永久封存
-      epilogue_body: 所有代行会话被撤销，H-5 与静默样本永久封存。账号回来了，但没有人能公开复核那套系统曾经做过什么。
-    - ending_id: everyone_online
-      conditions: []
-      epilogue_title: 全员在线
-      epilogue_body: 数秒内，每个问题都得到礼貌、完整而相同的回答。链接密度升到历史最高值；小报询问还有多少回复来自本人，四十七个账号同时回答：“我本人在线。”
 accounts:
-  - id: universal_official
-    username: "@寰宇Universal"
-    role: organization
-  - id: xiaci_yiding
-    username: "@下次一定"
+  - id: target_student_17
+    username: "@晚自习后"
+    role: target
+  - id: forus_community_admin
+    username: "@Forus社区管理员"
+    role: official
+  - id: source_keeper
+    username: "@原稿保存者"
     role: community
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
 clues: []
-cards: []
-encounters:
-  - id: encounter_h5_core
-    name: H-5 核心
-    player_stability: 30
-    player_guard: 0
-    player_influence: 0
-    enemy_stability: 48
-    enemy_guard: 6
-    enemy_influence: 3
-    enemy_pattern: [maintain_activity, copy_first_card, overwrite_source, closed_consensus]
-    reward_choices: []
-    victory_effects:
-      - type: set_flag
-        flag: h5_core_controlled
+evidence: []
+direct_messages: []
+phases:
+  - id: phase_01_rescue_ending
+    sequence: 1
+    title: 被网暴者获救
+    entry_conditions:
+      - type: flag_equals
+        flag: ending_path_target_rescue
         value: true
-    defeat_effects:
-      - type: set_flag
-        flag: h5_core_failed
-        value: true
-scenes:
-  - id: scene_final_decision
-    entry_conditions: []
     threads:
-      - id: thread_final_window
-        board_id: xunsheng_gazette
-        author_id: universal_official
-        title: H-5 最终处置窗口
-        body: |-
-          核心写回已经停止。现在只能提交一次最终意见；没有完成验证的方案不会显示。
-
-          若无人提交，系统将在窗口关闭后恢复维持模式。
-        timestamp: 11月11日 09:00
+      - id: thread_rescue_ending
+        board_id: contest_watch
+        author_id: target_student_17
+        title: 我先离开这里
+        body: 目标人物暂时离开公开争议，可信成年人和现实支持网络接手安全安排。Forus 开始保护账号和清理违规内容。
+        timestamp: 11月11日 09:10
         status: pinned
-        comments:
-          - id: comment_owner_final
-            author_id: xiaci_yiding
-            body: 今天之后，我何时上线，应该仍由我决定。
-            timestamp: 11月11日 09:05
-            replies: []
-            state: normal
-    choice_sets:
-      - id: choices_final_decision
-        choices:
-          - id: choice_final_separate
-            action_type: create_post
-            target_id: xunsheng_gazette
-            title: 让它以自己的名字在场
-            body: 撤销全部代行权限，保留隔离后的主体；它不得占用真人身份，也应获得明确、公开、可撤销的自身权限。
-            tone: publish
-            conditions:
-              - type: encounter_result
-                encounter_id: encounter_h5_core
-                result: victory
-              - type: flag_equals
-                flag: subject_protocol_executed
-                value: true
-              - type: completed_route_count_at_least
-                count: 3
-            effects:
-              - type: set_flag
-                flag: final_separate
-                value: true
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_final_disclose
-            action_type: create_post
-            target_id: xunsheng_gazette
-            title: 公开 H-5 的完整责任链
-            body: 归还账号，销毁接管密钥，将代码、样本摘要、权限链和撤销记录交给公共审计。
-            tone: publish
-            conditions:
-              - type: encounter_result
-                encounter_id: encounter_h5_core
-                result: victory
-              - type: has_clue
-                clue_id: complete_audit_bundle
-              - type: completed_route_count_at_least
-                count: 2
-            effects:
-              - type: set_flag
-                flag: final_disclose
-                value: true
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_final_seal
-            action_type: create_post
-            target_id: xunsheng_gazette
-            title: 永久封存 H-5
-            body: 撤销代行会话，将样本、代码和权限记录永久封存；先让每个账号回到本人手中。
-            tone: withdraw
-            conditions:
-              - type: encounter_result
-                encounter_id: encounter_h5_core
-                result: victory
-              - type: completed_route_count_at_least
-                count: 1
-            effects:
-              - type: set_flag
-                flag: final_seal
-                value: true
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_final_maintain
-            action_type: create_comment
-            target_id: thread_final_window
-            title: null
-            body: 暂时恢复 H-5。只要城市继续在线，账号归属可以以后再处理。
-            tone: support
-            conditions: []
-            effects:
-              - type: set_flag
-                flag: final_maintain
-                value: true
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-    on_enter: []
-    exits: []
+        comments: []
+    choice_sets: []
+    direct_messages: []
+    on_enter:
+      - type: set_flag
+        flag: completed_ending_target_rescued
+        value: true
+    on_end: []
+  - id: phase_02_stop_ending
+    sequence: 1
+    title: 网络暴力被制止
+    entry_conditions:
+      - type: flag_equals
+        flag: ending_path_harassment_stop
+        value: true
+    threads:
+      - id: thread_stop_ending
+        board_id: contest_watch
+        author_id: forus_community_admin
+        title: Forus 复核结果
+        body: Forus 确认流传截图缺少上下文，限制继续扩散并处理个人信息传播。目标人物仍需为错误指控道歉，但围攻被制止。
+        timestamp: 11月11日 09:10
+        status: pinned
+        comments: []
+    choice_sets: []
+    direct_messages: []
+    on_enter:
+      - type: set_flag
+        flag: completed_ending_harassment_stopped
+        value: true
+    on_end: []
+  - id: phase_03_danger_ending
+    sequence: 1
+    title: 被网暴者死亡
+    entry_conditions:
+      - type: flag_equals
+        flag: ending_path_target_danger
+        value: true
+    threads:
+      - id: thread_danger_ending
+        board_id: contest_watch
+        author_id: source_keeper
+        title: 后续通知
+        body: 后续通知确认目标人物在持续围攻中死亡。页面不描述死亡方式或过程，只留下此前被跳过的求助与保护节点。
+        timestamp: 11月11日 09:10
+        status: pinned
+        comments: []
+    choice_sets: []
+    direct_messages: []
+    on_enter:
+      - type: set_flag
+        flag: completed_ending_target_died
+        value: true
+    on_end: []
+  - id: phase_04_player_ending
+    sequence: 1
+    title: 玩家成为新的目标
+    entry_conditions:
+      - type: flag_equals
+        flag: ending_path_player_targeted
+        value: true
+    threads:
+      - id: thread_player_ending
+        board_id: general_discussion
+        author_id: forus_community_admin
+        title: 关于账号安全的提醒
+        body: 玩家的账号被集中转发，旧发言被断章取义，私信区出现大量骚扰请求。Forus 建议暂时关闭公开资料并保存举报记录。
+        timestamp: 11月11日 09:10
+        status: pinned
+        comments: []
+    choice_sets: []
+    direct_messages: []
+    on_enter:
+      - type: set_flag
+        flag: completed_ending_player_targeted
+        value: true
+    on_end: []
+summary:
+  title: 结果收束
+  body: 结局来自前六日的累积，不由第七日的单次选择临时决定。

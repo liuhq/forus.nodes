@@ -1,133 +1,158 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_02
   sequence: 2
   locale: zh-CN
   display_date: 11月6日
-  interaction_limit: 2
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: 九个在线的人
-  summary: 异常扩展到九个账号，并指向一条被覆盖签名的维护路由。
-  on_enter: []
+  title: 删除不等于澄清
+  summary: 删除原帖没有结束争议，公开版本记录开始显出截图缺失的时间线。
   on_end: []
-  exits:
-    - target_day_id: day_03
-      conditions: []
 accounts:
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
-  - id: forus_team
-    username: "@Forus项目组"
-    role: official
-  - id: windbell_7
-    username: "@windbell_7"
+  - id: target_student_17
+    username: "@晚自习后"
+    role: target
+  - id: source_keeper
+    username: "@原稿保存者"
     role: community
-  - id: nco13_bulletin
-    username: "@NCO13发布"
-    role: official
+  - id: contest_observer
+    username: "@比赛观察员"
+    role: community
 clues:
-  - id: overwritten_signature
-    name: 覆盖签名
-    description: 异常会话由外部维护路由签发，主体字段曾被多次覆盖。
-  - id: link_density_shift
-    name: 链接密度变化
-    description: 代行账号活跃时，NC13 局部链接密度出现同步上升。
-cards:
-  - id: trace_signature
-    name: 追踪签名
-    type: EvidenceCard
-    cost: 1
-    rules_text: 基础伤害4；敌方存在噪声时，本轮影响力+1。
-    base_damage: 4
-    effects: []
-    keywords: []
-    route_scope: governance_route
-encounters: []
-scenes:
-  - id: scene_nine_accounts
-    entry_conditions: []
+  - id: draft_gap
+    name: 草稿缺口
+    description: 流传对比图缺少中间版本和授权说明。
+evidence:
+  - id: draft_version
+    name: 草稿版本记录
+    description: 比赛作品的公开版本、时间和署名记录。
+    max_confidence: 3
+direct_messages: []
+phases:
+  - id: phase_01_deleted_post
+    sequence: 1
+    title: 删除记录
     threads:
-      - id: thread_nine_accounts
-        board_id: xunsheng_gazette
-        author_id: feifeiyu_fishy
-        title: 异常活跃审计：不是盗号，也不是单一账号
-        body: |-
-          小报已确认九个离线账号在规律签到、回复和投票。它们不索取财物，也不修改密码，只维持“社会活跃”。
-
-          会话来自一条标记为 NC7 的维护路由，签发主体字段被覆盖。请不要把来源标记直接等同于责任结论。
-        timestamp: 11月6日 09:10
-        status: pinned
-        comments:
-          - id: comment_forus_route
-            author_id: forus_team
-            body: Forus 已暂停该路由的应用层权限，并保存覆盖前后的签名片段。
-            timestamp: 11月6日 09:18
-            replies: []
-            state: normal
-          - id: comment_windbell_density
-            author_id: windbell_7
-            body: NC7 的公开图显示，账号开始代行后 NC13 的链接密度确实短暂上升。
-            timestamp: 11月6日 09:24
-            replies: []
-            state: normal
-          - id: comment_nco_denial
-            author_id: nco13_bulletin
-            body: NCO13 未批准任何账号代行试验，现已启动权限审计。
-            timestamp: 11月6日 09:31
-            replies: []
-            state: normal
+      - id: thread_deleted_post
+        board_id: contest_watch
+        author_id: contest_observer
+        title: 她删帖就是心虚吗
+        body: 删除时间被转发者解释为“默认承认”。原帖缓存仍在继续传播。
+        timestamp: 11月6日 08:40
+        status: normal
+        comments: []
     choice_sets:
-      - id: choices_nine_accounts
+      - id: choices_deleted_post
         choices:
-          - id: choice_restore_signature
-            action_type: create_reply
-            target_id: comment_forus_route
-            title: null
-            body: 对照覆盖前后的签名与时间戳，先确认谁有能力签发，而不是先猜谁该负责。
-            tone: investigate
-            conditions: []
-            effects:
-              - type: grant_clue
-                clue_id: overwritten_signature
-              - type: grant_card
-                card_id: trace_signature
-              - type: increment_counter
-                counter: governance_progress
-                amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_measure_density
-            action_type: create_reply
-            target_id: comment_windbell_density
-            title: null
-            body: 保留异常账号启停前后的同口径数据，确认上升是否来自真实连接而非重复回复。
-            tone: investigate
-            conditions: []
-            effects:
-              - type: grant_clue
-                clue_id: link_density_shift
-              - type: increment_counter
-                counter: survival_progress
-                amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_compare_memories
+          - id: choice_compare_delete_time
             action_type: create_comment
-            target_id: thread_nine_accounts
+            target_id: thread_deleted_post
             title: null
-            body: 用公开事件的具体上下文提问；复制语气不代表拥有当时的经历。
-            tone: challenge
+            body: 删除只能说明她停止了原帖传播，不能单独证明她承认所有指控。
             conditions: []
             effects:
-              - type: increment_counter
-                counter: identity_progress
+              - type: increment_hidden_value
+                value: truth_confidence
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+          - id: choice_agree_delete_guilt
+            action_type: react_agree
+            target_id: thread_deleted_post
+            title: 赞同“删除就是认错”
+            body: null
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+  - id: phase_02_draft_records
+    sequence: 2
+    title: 版本记录
+    threads:
+      - id: thread_draft_records
+        board_id: contest_watch
+        author_id: source_keeper
+        title: 完整草稿还缺一页
+        body: 公开草稿显示两人曾交换过设计意见，但授权记录还没有整理完。
+        timestamp: 11月6日 12:20
+        status: pinned
+        comments: []
+    choice_sets:
+      - id: choices_draft_records
+        choices:
+          - id: choice_request_public_versions
+            action_type: create_reply
+            target_id: thread_draft_records
+            title: null
+            body: 先整理公开版本和时间线，不要把任何私信作为公开证据。
+            conditions: []
+            effects:
+              - type: grant_clue
+                clue_id: draft_gap
+              - type: grant_evidence
+                evidence_id: draft_version
+                initial_confidence: 1
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+          - id: choice_amplify_accusation
+            action_type: create_reply
+            target_id: thread_draft_records
+            title: null
+            body: 既然她删过帖，就应该先公开道歉再谈版本。
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: player_exposure
+                amount: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages:
+      - id: dm_target_admission
+        sender_id: target_student_17
+        participant_ids: [player, target_student_17]
+        visibility: private
+        trigger_conditions:
+          - type: private_flag_equals
+            flag: private_boundary_respected
+            value: true
+        arrival: next_phase
+        messages:
+          - id: dm_target_admission_message
+            author_id: target_student_17
+            body: 我确实以为她偷了作品。我没有查清楚就发了帖子，后来私下道歉了，但不敢公开说。
+            timestamp: 11月6日 19:10
+            state: unread
+        choice_sets:
+          - id: choices_target_admission
+            choices:
+              - id: choice_accept_accountability
+                action_type: reply_direct_message
+                target_id: dm_target_admission_message
+                title: 接受责任边界
+                body: 你需要为错误指控道歉，但这不代表别人可以继续公开你的个人信息。
+                conditions: []
+                effects:
+                  - type: set_private_flag
+                    flag: target_accountability_acknowledged
+                    value: true
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: 1
+              - id: choice_pressure_public_apology
+                action_type: reply_direct_message
+                target_id: dm_target_admission_message
+                title: 要求立即公开道歉
+                body: 你应该现在就把所有私下内容公开，大家才会相信你。
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: -1
+    on_enter: []
+    on_end: []
+summary:
+  title: 删除不等于澄清
+  body: 玩家确认目标人物确实犯过错误，但完整版本仍需要公开材料核验。

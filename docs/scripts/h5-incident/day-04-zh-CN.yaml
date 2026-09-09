@@ -1,212 +1,136 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_04
   sequence: 4
   locale: zh-CN
   display_date: 11月8日
-  interaction_limit: 2
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: 三种答案
-  summary: 玩家沿主路线深入，但仍可为另一条路线留下证据。
-  on_enter: []
+  title: 公开证据与私人边界
+  summary: 玩家整理公开材料，同时面对“帮助”是否会变成再次曝光的问题。
   on_end: []
-  exits:
-    - target_day_id: day_05
-      conditions: []
 accounts:
-  - id: xiaci_yiding
-    username: "@下次一定"
+  - id: source_keeper
+    username: "@原稿保存者"
     role: community
-  - id: humo_audit
-    username: "@HUMO审计"
-    role: organization
-  - id: windbell_7
-    username: "@windbell_7"
+  - id: contest_observer
+    username: "@比赛观察员"
     role: community
-clues: []
-cards:
-  - id: isolated_voice
-    name: 隔离的声音
-    type: ProtectionCard
-    cost: 1
-    rules_text: 获得5点防护；身份路线为主路线时再获得1点影响力。
-    base_damage: 0
-    effects: []
-    keywords: []
-    route_scope: identity_route
-  - id: audit_chain
-    name: 审计链
-    type: EvidenceCard
-    cost: 2
-    rules_text: 基础伤害7；治理路线为主路线时移除敌方防护。
-    base_damage: 7
-    effects: []
-    keywords: []
-    route_scope: governance_route
-  - id: real_density
-    name: 真实密度
-    type: ProtocolCard
-    cost: 2
-    rules_text: 每轮首次打出防护牌后影响力+1。
-    base_damage: 0
-    effects: []
-    keywords: [protocol]
-    route_scope: survival_route
-encounters: []
-scenes:
-  - id: scene_identity_route
-    entry_conditions:
-      - type: route_equals
-        route: identity_route
+  - id: target_student_17
+    username: "@晚自习后"
+    role: target
+clues:
+  - id: public_context_restored
+    name: 公开语境恢复
+    description: 公开版本能够还原作品交换和删除过程。
+evidence:
+  - id: authorization_record
+    name: 授权记录
+    description: 公开版本中的署名、交换和授权记录。
+    max_confidence: 3
+direct_messages: []
+phases:
+  - id: phase_01_authorization_records
+    sequence: 1
+    title: 授权记录
     threads:
-      - id: thread_identity_test
-        board_id: xunsheng_gazette
-        author_id: xiaci_yiding
-        title: 我让它使用空白账号回答
-        body: |-
-          离开我的用户名和历史后，它没有停止。它为自己选择了新的句式，并准确指出哪些记忆只属于训练数据。
-
-          它仍无权使用我的账号；但“不是我”也不等于“什么都不是”。
-        timestamp: 11月8日 10:10
-        status: normal
-        comments: []
-    choice_sets:
-      - id: choices_identity_route
-        choices:
-          - id: choice_isolate_voice
-            action_type: create_comment
-            target_id: thread_identity_test
-            title: null
-            body: 保存空白账号测试，并把它与原账号会话分开标记。先停止冒名，再研究发言者。
-            tone: cautious
-            conditions: []
-            effects:
-              - type: grant_clue
-                clue_id: non_person_session
-              - type: grant_card
-                card_id: isolated_voice
-              - type: increment_counter
-                counter: identity_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_identity_cross_governance
-            action_type: create_comment
-            target_id: thread_identity_test
-            title: null
-            body: 测试必须记录谁批准了空白环境，主体问题不能绕过权限问题。
-            tone: challenge
-            conditions: []
-            effects:
-              - type: increment_counter
-                counter: governance_progress
-                amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-    on_enter: []
-    exits: []
-  - id: scene_governance_route
-    entry_conditions:
-      - type: route_equals
-        route: governance_route
-    threads:
-      - id: thread_humo_audit
-        board_id: xunsheng_gazette
-        author_id: humo_audit
-        title: H-5 权限说明与缺失项
-        body: |-
-          HUMO 承认内部试验签名有效，但该签名不包含跨城部署。互认路由的扩展字段来自无法归属的外部程序，NCO13 与账号本人均未授权。
-        timestamp: 11月8日 10:10
+      - id: thread_authorization_records
+        board_id: contest_watch
+        author_id: source_keeper
+        title: 还原公开版本
+        body: 新的公开材料显示，作品在比赛前曾经交换过草稿，流传截图没有展示完整记录。
+        timestamp: 11月8日 09:30
         status: pinned
         comments: []
     choice_sets:
-      - id: choices_governance_route
+      - id: choices_authorization_records
         choices:
-          - id: choice_audit_signature
-            action_type: create_comment
-            target_id: thread_humo_audit
-            title: null
-            body: 公开覆盖前后的签名摘要和每一层授权缺口，不能用“内部有效”替代跨城同意。
-            tone: publish
-            conditions: []
+          - id: choice_publish_public_timeline
+            action_type: create_post
+            target_id: contest_watch
+            title: 公开版本时间线
+            body: 只整理公开草稿、日期和授权记录，不发布任何私信内容。
+            conditions:
+              - type: has_clue
+                clue_id: shared_draft_history
             effects:
               - type: grant_clue
-                clue_id: overwritten_signature
-              - type: grant_card
-                card_id: audit_chain
-              - type: increment_counter
-                counter: governance_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_governance_cross_survival
+                clue_id: public_context_restored
+              - type: increase_evidence_confidence
+                evidence_id: authorization_record
+                amount: 1
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+          - id: choice_hint_private_message
             action_type: create_comment
-            target_id: thread_humo_audit
+            target_id: thread_authorization_records
             title: null
-            body: 同时公开试验宣称的风险指标，紧急状态也必须能被独立复核。
-            tone: investigate
+            body: 我看过当事人的私下说明，情况不是大家以为的那样。
             conditions: []
             effects:
-              - type: increment_counter
-                counter: survival_progress
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+              - type: increment_hidden_value
+                value: player_exposure
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+    direct_messages: []
     on_enter: []
-    exits: []
-  - id: scene_survival_route
-    entry_conditions:
-      - type: route_equals
-        route: survival_route
+    on_end: []
+  - id: phase_02_report_entry
+    sequence: 2
+    title: 举报入口
     threads:
-      - id: thread_density_test
-        board_id: xunsheng_gazette
-        author_id: windbell_7
-        title: 关闭三组代行后的真实读数
-        body: |-
-          链接密度下降了，但侵蚀边界没有立即移动。更重要的是，真人回复比例回升，说明 H-5 优化的指标并不等于真实关系。
-        timestamp: 11月8日 10:10
+      - id: thread_report_entry
+        board_id: general_discussion
+        author_id: contest_observer
+        title: 这些回复已经不是讨论作品
+        body: 评论中出现集中辱骂、学校信息和旧账号链接。玩家可以举报或请求保护。
+        timestamp: 11月8日 14:10
         status: normal
         comments: []
     choice_sets:
-      - id: choices_survival_route
+      - id: choices_report_entry
         choices:
-          - id: choice_publish_density
+          - id: choice_request_account_protection
             action_type: create_comment
-            target_id: thread_density_test
+            target_id: thread_report_entry
             title: null
-            body: 同时发布总密度、真人比例和侵蚀边界，不能只展示最有利于 H-5 的一条曲线。
-            tone: publish
+            body: 请求隐藏目标账号的个人资料，并限制集中回复。
             conditions: []
             effects:
-              - type: grant_clue
-                clue_id: link_density_shift
-              - type: grant_card
-                card_id: real_density
-              - type: increment_counter
-                counter: survival_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_survival_cross_identity
-            action_type: create_comment
-            target_id: thread_density_test
-            title: null
-            body: 把账号本人是否主动回来也计入结果；真实响应不能被当作噪声排除。
-            tone: challenge
-            conditions: []
-            effects:
-              - type: increment_counter
-                counter: identity_progress
+              - type: set_flag
+                flag: forus_safety_review_pending
+                value: true
+              - type: increment_hidden_value
+                value: platform_governance
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: 1
+          - id: choice_save_public_reports
+            action_type: create_reply
+            target_id: thread_report_entry
+            title: null
+            body: 只提交公开链接和时间线，不提交任何私信内容。
+            conditions: []
+            effects:
+              - type: set_flag
+                flag: forus_safety_review_pending
+                value: true
+              - type: increment_hidden_value
+                value: platform_governance
+                amount: 1
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+  - id: phase_03_official_notice
+    sequence: 3
+    title: 官方提示
+    threads: []
+    choice_sets: []
+    direct_messages: []
+    on_enter: []
+    on_end: []
+summary:
+  title: 公开证据与私人边界
+  body: 玩家开始拥有足够的公开材料，但帮助目标人物不能以再次泄露私信为代价。

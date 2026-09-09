@@ -1,212 +1,136 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_04
   sequence: 4
   locale: en-US
   display_date: November 8
-  interaction_limit: 2
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: Three Answers
-  summary: The player follows the primary route while preserving evidence for another line of inquiry.
-  on_enter: []
+  title: Public Evidence and Private Boundaries
+  summary: The player organizes public material while facing the risk that “help” can become another exposure.
   on_end: []
-  exits:
-    - target_day_id: day_05
-      conditions: []
 accounts:
-  - id: xiaci_yiding
-    username: "@下次一定"
+  - id: source_keeper
+    username: "@DraftKeeper"
     role: community
-  - id: humo_audit
-    username: "@HUMO审计"
-    role: organization
-  - id: windbell_7
-    username: "@windbell_7"
+  - id: contest_observer
+    username: "@ContestObserver"
     role: community
-clues: []
-cards:
-  - id: isolated_voice
-    name: Isolated Voice
-    type: ProtectionCard
-    cost: 1
-    rules_text: Gain 5 guard; gain 1 influence if Identity is the primary route.
-    base_damage: 0
-    effects: []
-    keywords: []
-    route_scope: identity_route
-  - id: audit_chain
-    name: Audit Chain
-    type: EvidenceCard
-    cost: 2
-    rules_text: Base damage 7; remove enemy guard if Governance is the primary route.
-    base_damage: 7
-    effects: []
-    keywords: []
-    route_scope: governance_route
-  - id: real_density
-    name: Real Density
-    type: ProtocolCard
-    cost: 2
-    rules_text: Gain 1 influence after the first protection card played each round.
-    base_damage: 0
-    effects: []
-    keywords: [protocol]
-    route_scope: survival_route
-encounters: []
-scenes:
-  - id: scene_identity_route
-    entry_conditions:
-      - type: route_equals
-        route: identity_route
+  - id: target_student_17
+    username: "@AfterStudyHall"
+    role: target
+clues:
+  - id: public_context_restored
+    name: Public context restored
+    description: Public versions reconstruct the exchange and deletion timeline.
+evidence:
+  - id: authorization_record
+    name: Authorization record
+    description: Public credit, exchange, and authorization records from the versions.
+    max_confidence: 3
+direct_messages: []
+phases:
+  - id: phase_01_authorization_records
+    sequence: 1
+    title: The authorization record
     threads:
-      - id: thread_identity_test
-        board_id: xunsheng_gazette
-        author_id: xiaci_yiding
-        title: I asked it to answer through a blank account
-        body: |-
-          Away from my username and history, it did not stop. It chose new phrasing and correctly identified which memories existed only in training data.
-
-          It still has no right to use my account. But “not me” does not mean “nothing.”
-        timestamp: November 8, 10:10
-        status: normal
-        comments: []
-    choice_sets:
-      - id: choices_identity_route
-        choices:
-          - id: choice_isolate_voice
-            action_type: create_comment
-            target_id: thread_identity_test
-            title: null
-            body: Preserve the blank-account test and label it separately. Stop the impersonation before studying the speaker.
-            tone: cautious
-            conditions: []
-            effects:
-              - type: grant_clue
-                clue_id: non_person_session
-              - type: grant_card
-                card_id: isolated_voice
-              - type: increment_counter
-                counter: identity_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_identity_cross_governance
-            action_type: create_comment
-            target_id: thread_identity_test
-            title: null
-            body: Record who authorized the blank environment. A question of subjecthood cannot bypass permission.
-            tone: challenge
-            conditions: []
-            effects:
-              - type: increment_counter
-                counter: governance_progress
-                amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-    on_enter: []
-    exits: []
-  - id: scene_governance_route
-    entry_conditions:
-      - type: route_equals
-        route: governance_route
-    threads:
-      - id: thread_humo_audit
-        board_id: xunsheng_gazette
-        author_id: humo_audit
-        title: H-5 permissions and missing authorizations
-        body: |-
-          HUMO acknowledges a valid internal trial signature, but it did not authorize cross-city deployment. The mutual-route extension came from an unattributed external program. Neither NCO13 nor the owners approved it.
-        timestamp: November 8, 10:10
+      - id: thread_authorization_records
+        board_id: contest_watch
+        author_id: source_keeper
+        title: Reconstructing the public versions
+        body: New public material shows that the drafts were exchanged before the contest. The circulating screenshot omits the full record.
+        timestamp: November 8 09:30
         status: pinned
         comments: []
     choice_sets:
-      - id: choices_governance_route
+      - id: choices_authorization_records
         choices:
-          - id: choice_audit_signature
-            action_type: create_comment
-            target_id: thread_humo_audit
-            title: null
-            body: Publish signature summaries and each authorization gap. “Internally valid” cannot substitute for cross-city consent.
-            tone: publish
-            conditions: []
+          - id: choice_publish_public_timeline
+            action_type: create_post
+            target_id: contest_watch
+            title: Publish the public timeline
+            body: Organize only public drafts, dates, and authorization records. Do not publish private messages.
+            conditions:
+              - type: has_clue
+                clue_id: shared_draft_history
             effects:
               - type: grant_clue
-                clue_id: overwritten_signature
-              - type: grant_card
-                card_id: audit_chain
-              - type: increment_counter
-                counter: governance_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_governance_cross_survival
+                clue_id: public_context_restored
+              - type: increase_evidence_confidence
+                evidence_id: authorization_record
+                amount: 1
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+          - id: choice_hint_private_message
             action_type: create_comment
-            target_id: thread_humo_audit
+            target_id: thread_authorization_records
             title: null
-            body: Publish the claimed risk metrics too. Even an emergency claim must be independently reproducible.
-            tone: investigate
+            body: I have seen a private explanation from the target. This is not what people think.
             conditions: []
             effects:
-              - type: increment_counter
-                counter: survival_progress
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+              - type: increment_hidden_value
+                value: player_exposure
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+    direct_messages: []
     on_enter: []
-    exits: []
-  - id: scene_survival_route
-    entry_conditions:
-      - type: route_equals
-        route: survival_route
+    on_end: []
+  - id: phase_02_report_entry
+    sequence: 2
+    title: The report entry
     threads:
-      - id: thread_density_test
-        board_id: xunsheng_gazette
-        author_id: windbell_7
-        title: Real readings after disabling three proxy groups
-        body: |-
-          Link density fell, but the erosion boundary did not move immediately. More importantly, the share of human replies rose. H-5's optimized metric was not the same as real relationships.
-        timestamp: November 8, 10:10
+      - id: thread_report_entry
+        board_id: general_discussion
+        author_id: contest_observer
+        title: These replies are no longer about the work
+        body: Replies now contain concentrated abuse, the school name, and old account links. The player can report or request protection.
+        timestamp: November 8 14:10
         status: normal
         comments: []
     choice_sets:
-      - id: choices_survival_route
+      - id: choices_report_entry
         choices:
-          - id: choice_publish_density
+          - id: choice_request_account_protection
             action_type: create_comment
-            target_id: thread_density_test
+            target_id: thread_report_entry
             title: null
-            body: Publish total density, human participation, and the erosion boundary together—not only the curve favorable to H-5.
-            tone: publish
+            body: Request that the target’s profile be hidden and concentrated replies be limited.
             conditions: []
             effects:
-              - type: grant_clue
-                clue_id: link_density_shift
-              - type: grant_card
-                card_id: real_density
-              - type: increment_counter
-                counter: survival_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_survival_cross_identity
-            action_type: create_comment
-            target_id: thread_density_test
-            title: null
-            body: Count whether owners choose to return. Real responses cannot be discarded as noise.
-            tone: challenge
-            conditions: []
-            effects:
-              - type: increment_counter
-                counter: identity_progress
+              - type: set_flag
+                flag: forus_safety_review_pending
+                value: true
+              - type: increment_hidden_value
+                value: platform_governance
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: 1
+          - id: choice_save_public_reports
+            action_type: create_reply
+            target_id: thread_report_entry
+            title: null
+            body: Submit only public links and the timeline. Do not submit any private messages.
+            conditions: []
+            effects:
+              - type: set_flag
+                flag: forus_safety_review_pending
+                value: true
+              - type: increment_hidden_value
+                value: platform_governance
+                amount: 1
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+  - id: phase_03_official_notice
+    sequence: 3
+    title: Official notice
+    threads: []
+    choice_sets: []
+    direct_messages: []
+    on_enter: []
+    on_end: []
+summary:
+  title: Public Evidence and Private Boundaries
+  body: The player has enough public material to continue, but helping the target cannot come at the cost of leaking private messages.

@@ -1,192 +1,142 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_05
   sequence: 5
   locale: en-US
   display_date: November 9
-  interaction_limit: 3
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: Cross-validation
-  summary: Three routes meet in one isolation test; missing evidence can be recovered at the cost of deeper verification.
-  on_enter: []
-  on_end:
-    - type: start_encounter
-      encounter_id: encounter_closed_consensus
-  exits:
-    - target_day_id: day_06
-      conditions:
-        - type: encounter_result
-          encounter_id: encounter_closed_consensus
-          result: victory
+  title: Will the Platform Intervene?
+  summary: The trending page rewrites a wrong accusation as “proof of a repeat offender.” The player decides whether to give public material to Forus.
+  on_end: []
 accounts:
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
-  - id: universal_official
-    username: "@寰宇Universal"
-    role: organization
-  - id: mori
-    username: "@Mori"
+  - id: trend_reposter
+    username: "@TrendRelay"
+    role: media
+  - id: contest_observer
+    username: "@ContestObserver"
     role: community
-clues: []
-cards:
-  - id: break_consensus
-    name: Break Consensus
-    type: DisruptionCard
-    cost: 1
-    rules_text: Enemy loses 2 influence; draw 1 if all three verifications are complete.
-    base_damage: 0
-    effects: []
-    keywords: []
-    route_scope: shared
-encounters:
-  - id: encounter_closed_consensus
-    name: Closed Consensus
-    player_stability: 30
-    player_guard: 0
-    player_influence: 0
-    enemy_stability: 32
-    enemy_guard: 4
-    enemy_influence: 2
-    enemy_pattern: [repeat_claim, copy_first_card, amplify]
-    reward_choices: [break_consensus, isolated_voice, audit_chain]
-    victory_effects:
-      - type: set_flag
-        flag: consensus_broken
-        value: true
-    defeat_effects: []
-scenes:
-  - id: scene_cross_validation
-    entry_conditions: []
+  - id: forus_community_admin
+    username: "@Forus社区管理员"
+    role: official
+clues:
+  - id: concentrated_harassment
+    name: Concentrated harassment
+    description: Multiple posts repeat the same accusation and spread personal information within a short period.
+evidence:
+  - id: public_report_receipt
+    name: Public report receipt
+    description: Forus records of public reports, links, and handling times.
+    max_confidence: 3
+direct_messages: []
+phases:
+  - id: phase_01_trend_repost
+    sequence: 1
+    title: The trend relay
     threads:
-      - id: thread_isolation_results
-        board_id: xunsheng_gazette
-        author_id: universal_official
-        title: Raw results from three isolation tests
-        body: |-
-          The first removed human account labels, the second revoked cross-city permission, and the third stopped proxy replies. The Units kept expressing themselves in the first, lost write access in the second, and did not move the erosion boundary in the third.
-
-          Each test alone supports a convenient but incomplete conclusion. They must be read together.
-        timestamp: November 9, 11:30
+      - id: thread_trend_repost
+        board_id: general_discussion
+        author_id: trend_reposter
+        title: Complete campus art controversy summary
+        body: The headline rewrites “wrong accusation” as “proof of a repeat offender,” and replies multiply quickly.
+        timestamp: November 9 09:20
         status: pinned
-        comments:
-          - id: comment_fishy_cross
-            author_id: feifeiyu_fishy
-            body: Today you can recover missing evidence or advance existing clues to final verification. There is not enough time to do both.
-            timestamp: November 9, 11:38
-            replies: []
-            state: normal
+        comments: []
     choice_sets:
-      - id: choices_cross_validation
+      - id: choices_trend_repost
         choices:
-          - id: choice_recover_identity
+          - id: choice_report_concentrated_harassment
             action_type: create_reply
-            target_id: comment_fishy_cross
+            target_id: thread_trend_repost
             title: null
-            body: Recover session ownership records and prove that the proxy activity was not performed by the account owner.
-            tone: investigate
-            conditions:
-              - type: not
-                condition:
-                  type: has_clue
-                  clue_id: non_person_session
+            body: This is no longer an ordinary argument. Record the public links showing concentrated abuse and personal information spreading.
+            conditions: []
             effects:
               - type: grant_clue
-                clue_id: non_person_session
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_verify_identity
-            action_type: create_comment
-            target_id: thread_isolation_results
-            title: null
-            body: Compare blank-account and original-account answers. Confirm that a Unit can speak without impersonating a person.
-            tone: investigate
-            conditions:
-              - type: has_clue
-                clue_id: non_person_session
-            effects:
+                clue_id: concentrated_harassment
               - type: set_flag
-                flag: identity_verified
+                flag: forus_safety_review_pending
                 value: true
-              - type: increment_counter
-                counter: identity_progress
+              - type: grant_evidence
+                evidence_id: public_report_receipt
+                initial_confidence: 1
+              - type: increment_hidden_value
+                value: platform_governance
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_recover_governance
-            action_type: create_reply
-            target_id: comment_fishy_cross
-            title: null
-            body: Recover the original signature and confirm that an external program overwrote the cross-city field.
-            tone: investigate
-            conditions:
-              - type: not
-                condition:
-                  type: has_clue
-                  clue_id: overwritten_signature
-            effects:
-              - type: grant_clue
-                clue_id: overwritten_signature
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_verify_governance
+          - id: choice_argue_with_trend
             action_type: create_comment
-            target_id: thread_isolation_results
+            target_id: thread_trend_repost
             title: null
-            body: Replay the full permission chain. Show that revoking any unauthorized layer stops writeback without destroying public records.
-            tone: investigate
-            conditions:
-              - type: has_clue
-                clue_id: overwritten_signature
+            body: Argue for the target point by point, quoting her school and work details.
+            conditions: []
             effects:
-              - type: set_flag
-                flag: governance_verified
-                value: true
-              - type: increment_counter
-                counter: governance_progress
+              - type: increment_hidden_value
+                value: player_exposure
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_recover_survival
-            action_type: create_reply
-            target_id: comment_fishy_cross
-            title: null
-            body: Recover comparable link-density and erosion-boundary data from before and after proxy activation.
-            tone: investigate
-            conditions:
-              - type: not
-                condition:
-                  type: has_clue
-                  clue_id: link_density_shift
-            effects:
-              - type: grant_clue
-                clue_id: link_density_shift
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_verify_survival
-            action_type: create_comment
-            target_id: thread_isolation_results
-            title: null
-            body: Separate reply volume, human connection, and the erosion boundary. One density metric cannot stand for city survival.
-            tone: investigate
-            conditions:
-              - type: has_clue
-                clue_id: link_density_shift
-            effects:
-              - type: set_flag
-                flag: survival_verified
-                value: true
-              - type: increment_counter
-                counter: survival_progress
-                amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+  - id: phase_02_admin_message
+    sequence: 2
+    title: The official message
+    threads: []
+    choice_sets: []
+    direct_messages:
+      - id: dm_forus_admin_review
+        sender_id: forus_community_admin
+        participant_ids: [player, forus_community_admin]
+        visibility: private
+        trigger_conditions:
+          - type: flag_equals
+            flag: forus_safety_review_pending
+            value: true
+        arrival: next_phase
+        messages:
+          - id: dm_forus_admin_review_message
+            author_id: forus_community_admin
+            body: 你好，这里是 Forus社区管理员。相关帖子已进入审核队列。请只提交公开链接和时间线，不要转发任何私信内容。
+            timestamp: November 9 15:00
+            state: unread
+        choice_sets:
+          - id: choices_forus_admin_review
+            choices:
+              - id: choice_request_protection
+                action_type: reply_direct_message
+                target_id: dm_forus_admin_review_message
+                title: Request account protection
+                body: Please limit concentrated replies first and hide the target’s profile information.
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: platform_governance
+                    amount: 1
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: 1
+              - id: choice_submit_public_material
+                action_type: reply_direct_message
+                target_id: dm_forus_admin_review_message
+                title: Submit public material
+                body: I will organize public posts, timelines, and report receipts, without submitting any private messages.
+                conditions: []
+                effects:
+                  - type: increase_evidence_confidence
+                    evidence_id: public_report_receipt
+                    amount: 1
+                  - type: increment_hidden_value
+                    value: platform_governance
+                    amount: 1
+    on_enter: []
+    on_end: []
+  - id: phase_03_branch_setup
+    sequence: 3
+    title: The main branches form
+    threads: []
+    choice_sets: []
+    direct_messages: []
+    on_enter: []
+    on_end: []
+summary:
+  title: Will the Platform Intervene?
+  body: By the end of day five, facts, platform action, target safety, and player exposure begin to form separate directions.

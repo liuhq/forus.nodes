@@ -1,192 +1,142 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_05
   sequence: 5
   locale: zh-CN
   display_date: 11月9日
-  interaction_limit: 3
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: 交叉验证
-  summary: 三条路线在同一组隔离实验中交汇，遗漏可补回但会失去深入验证机会。
-  on_enter: []
-  on_end:
-    - type: start_encounter
-      encounter_id: encounter_closed_consensus
-  exits:
-    - target_day_id: day_06
-      conditions:
-        - type: encounter_result
-          encounter_id: encounter_closed_consensus
-          result: victory
+  title: 平台是否介入
+  summary: 热榜把错误指控改写成“惯犯证据”，玩家决定是否把公开材料交给 Forus 处理。
+  on_end: []
 accounts:
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
-  - id: universal_official
-    username: "@寰宇Universal"
-    role: organization
-  - id: mori
-    username: "@Mori"
+  - id: trend_reposter
+    username: "@热榜搬运站"
+    role: media
+  - id: contest_observer
+    username: "@比赛观察员"
     role: community
-clues: []
-cards:
-  - id: break_consensus
-    name: 打破共识
-    type: DisruptionCard
-    cost: 1
-    rules_text: 敌方影响力-2；若三条验证均完成，再抽1张。
-    base_damage: 0
-    effects: []
-    keywords: []
-    route_scope: shared
-encounters:
-  - id: encounter_closed_consensus
-    name: 封闭共识
-    player_stability: 30
-    player_guard: 0
-    player_influence: 0
-    enemy_stability: 32
-    enemy_guard: 4
-    enemy_influence: 2
-    enemy_pattern: [repeat_claim, copy_first_card, amplify]
-    reward_choices: [break_consensus, isolated_voice, audit_chain]
-    victory_effects:
-      - type: set_flag
-        flag: consensus_broken
-        value: true
-    defeat_effects: []
-scenes:
-  - id: scene_cross_validation
-    entry_conditions: []
+  - id: forus_community_admin
+    username: "@Forus社区管理员"
+    role: official
+clues:
+  - id: concentrated_harassment
+    name: 集中围攻
+    description: 多个帖子在相近时间重复相同指控并扩散个人信息。
+evidence:
+  - id: public_report_receipt
+    name: 公开举报回执
+    description: Forus 对公开举报、链接和处理时间的记录。
+    max_confidence: 3
+direct_messages: []
+phases:
+  - id: phase_01_trend_repost
+    sequence: 1
+    title: 热榜搬运
     threads:
-      - id: thread_isolation_results
-        board_id: xunsheng_gazette
-        author_id: universal_official
-        title: 三组隔离实验的原始结果
-        body: |-
-          第一组移除真人账号标识，第二组撤销跨城权限，第三组切断代行回复。聚合单元在第一组继续表达，在第二组无法写回，在第三组没有改变侵蚀边界。
-
-          单看任何一组都能得出方便却不完整的结论，三组必须交叉核验。
-        timestamp: 11月9日 11:30
+      - id: thread_trend_repost
+        board_id: general_discussion
+        author_id: trend_reposter
+        title: 校园创作争议完整汇总
+        body: 标题把“错误指控”改写成“惯犯证据”，评论数量迅速增加。
+        timestamp: 11月9日 09:20
         status: pinned
-        comments:
-          - id: comment_fishy_cross
-            author_id: feifeiyu_fishy
-            body: 今天可以补查遗漏，也可以把已有线索推进为最终验证；时间不足以两者都做。
-            timestamp: 11月9日 11:38
-            replies: []
-            state: normal
+        comments: []
     choice_sets:
-      - id: choices_cross_validation
+      - id: choices_trend_repost
         choices:
-          - id: choice_recover_identity
+          - id: choice_report_concentrated_harassment
             action_type: create_reply
-            target_id: comment_fishy_cross
+            target_id: thread_trend_repost
             title: null
-            body: 补查会话归属，先证明代行活动并非账号主人本人操作。
-            tone: investigate
-            conditions:
-              - type: not
-                condition:
-                  type: has_clue
-                  clue_id: non_person_session
+            body: 这不是普通争论。请记录集中辱骂、个人信息扩散和重复转发的公开链接。
+            conditions: []
             effects:
               - type: grant_clue
-                clue_id: non_person_session
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_verify_identity
-            action_type: create_comment
-            target_id: thread_isolation_results
-            title: null
-            body: 比较空白账号与原账号回答，确认聚合单元能在不冒用真人身份时继续表达。
-            tone: investigate
-            conditions:
-              - type: has_clue
-                clue_id: non_person_session
-            effects:
+                clue_id: concentrated_harassment
               - type: set_flag
-                flag: identity_verified
+                flag: forus_safety_review_pending
                 value: true
-              - type: increment_counter
-                counter: identity_progress
+              - type: grant_evidence
+                evidence_id: public_report_receipt
+                initial_confidence: 1
+              - type: increment_hidden_value
+                value: platform_governance
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_recover_governance
-            action_type: create_reply
-            target_id: comment_fishy_cross
-            title: null
-            body: 补查原始签名，确认跨城部署字段曾被外部程序覆盖。
-            tone: investigate
-            conditions:
-              - type: not
-                condition:
-                  type: has_clue
-                  clue_id: overwritten_signature
-            effects:
-              - type: grant_clue
-                clue_id: overwritten_signature
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_verify_governance
+          - id: choice_argue_with_trend
             action_type: create_comment
-            target_id: thread_isolation_results
+            target_id: thread_trend_repost
             title: null
-            body: 重放完整权限链，确认撤销任何越权层都能阻止写回而不破坏公开档案。
-            tone: investigate
-            conditions:
-              - type: has_clue
-                clue_id: overwritten_signature
+            body: 逐条替目标人物反驳，并引用她的学校和作品细节。
+            conditions: []
             effects:
-              - type: set_flag
-                flag: governance_verified
-                value: true
-              - type: increment_counter
-                counter: governance_progress
+              - type: increment_hidden_value
+                value: player_exposure
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_recover_survival
-            action_type: create_reply
-            target_id: comment_fishy_cross
-            title: null
-            body: 补齐代行启停前后的真实链接密度与侵蚀边界数据。
-            tone: investigate
-            conditions:
-              - type: not
-                condition:
-                  type: has_clue
-                  clue_id: link_density_shift
-            effects:
-              - type: grant_clue
-                clue_id: link_density_shift
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_verify_survival
-            action_type: create_comment
-            target_id: thread_isolation_results
-            title: null
-            body: 分离回复数量、真人连接和侵蚀边界，证明 H-5 不能用单一密度指标代表城市存续。
-            tone: investigate
-            conditions:
-              - type: has_clue
-                clue_id: link_density_shift
-            effects:
-              - type: set_flag
-                flag: survival_verified
-                value: true
-              - type: increment_counter
-                counter: survival_progress
-                amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+  - id: phase_02_admin_message
+    sequence: 2
+    title: 官方私信
+    threads: []
+    choice_sets: []
+    direct_messages:
+      - id: dm_forus_admin_review
+        sender_id: forus_community_admin
+        participant_ids: [player, forus_community_admin]
+        visibility: private
+        trigger_conditions:
+          - type: flag_equals
+            flag: forus_safety_review_pending
+            value: true
+        arrival: next_phase
+        messages:
+          - id: dm_forus_admin_review_message
+            author_id: forus_community_admin
+            body: 你好，这里是 Forus社区管理员。相关帖子已进入审核队列。请只提交公开链接和时间线，不要转发任何私信内容。
+            timestamp: 11月9日 15:00
+            state: unread
+        choice_sets:
+          - id: choices_forus_admin_review
+            choices:
+              - id: choice_request_protection
+                action_type: reply_direct_message
+                target_id: dm_forus_admin_review_message
+                title: 请求账号保护
+                body: 请先限制集中回复并隐藏目标人物的个人资料。
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: platform_governance
+                    amount: 1
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: 1
+              - id: choice_submit_public_material
+                action_type: reply_direct_message
+                target_id: dm_forus_admin_review_message
+                title: 提交公开材料
+                body: 我会整理公开帖子、时间线和举报回执，不提交任何私信。
+                conditions: []
+                effects:
+                  - type: increase_evidence_confidence
+                    evidence_id: public_report_receipt
+                    amount: 1
+                  - type: increment_hidden_value
+                    value: platform_governance
+                    amount: 1
+    on_enter: []
+    on_end: []
+  - id: phase_03_branch_setup
+    sequence: 3
+    title: 主要分支形成
+    threads: []
+    choice_sets: []
+    direct_messages: []
+    on_enter: []
+    on_end: []
+summary:
+  title: 平台是否介入
+  body: 第五日结束时，事实材料、平台治理、目标安全和玩家暴露开始形成不同方向。

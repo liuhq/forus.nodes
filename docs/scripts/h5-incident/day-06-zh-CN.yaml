@@ -1,191 +1,222 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_06
   sequence: 6
   locale: zh-CN
   display_date: 11月10日
-  interaction_limit: 2
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: 处置之前
-  summary: 玩家把验证结果转化为封存、公开或主体分离所需的执行材料。
-  on_enter: []
+  title: 不可逆方向
+  summary: 目标安全、事实可信度、平台治理和玩家暴露在今天形成不可逆的结局方向。
   on_end: []
-  exits:
-    - target_day_id: day_07
-      conditions: []
 accounts:
-  - id: universal_official
-    username: "@寰宇Universal"
-    role: organization
-  - id: xiaci_yiding
-    username: "@下次一定"
+  - id: target_student_17
+    username: "@晚自习后"
+    role: target
+  - id: forus_community_admin
+    username: "@Forus社区管理员"
+    role: official
+  - id: source_keeper
+    username: "@原稿保存者"
     role: community
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
-clues:
-  - id: account_separation_proof
-    name: 账号分离证明
-    description: 聚合单元可在撤销真人账号权限后继续表达。
-  - id: public_audit_manifest
-    name: 公开审计清单
-    description: 代码、样本、权限、写回通道与删除记录被纳入同一清单。
-  - id: independent_runtime_proof
-    name: 独立运行证明
-    description: 隔离运行不降低侵蚀防护，也无需伪造真人活跃。
-  - id: complete_audit_bundle
-    name: 完整审计包
-    description: 两条以上路线的证据可由公众独立复核。
-cards:
-  - id: subject_separation_protocol
-    name: 主体分离协议
-    type: ProtocolCard
-    cost: 3
-    rules_text: 仅限最终战；撤销代行权限但保留聚合单元稳定度，开启主体分离出口。
-    base_damage: 0
-    effects:
-      - type: set_flag
-        flag: subject_protocol_executed
-        value: true
-    keywords: [protocol, true_ending]
-    route_scope: shared
-encounters: []
-scenes:
-  - id: scene_disposal_materials
-    entry_conditions: []
+clues: []
+evidence: []
+direct_messages: []
+phases:
+  - id: phase_01_safety_check
+    sequence: 1
+    title: 安全确认
     threads:
-      - id: thread_disposal_window
-        board_id: xunsheng_gazette
-        author_id: universal_official
-        title: H-5 最终处置窗口将在明日开放
-        body: |-
-          可执行方案必须说明账号归还、权限撤销、样本处置和城市风险。证据不足的方案不会进入明日窗口。
-
-          封存只要求一条完整路线；公开要求完整审计包；主体分离必须同时回答身份、治理与存续。
-        timestamp: 11月10日 14:00
+      - id: thread_safety_check
+        board_id: general_discussion
+        author_id: source_keeper
+        title: 现在最重要的是什么
+        body: 公开讨论仍在继续，但目标人物是否安全已经比争论谁先说错更紧急。
+        timestamp: 11月10日 09:00
         status: pinned
-        comments:
-          - id: comment_owner_priority
-            author_id: xiaci_yiding
-            body: 无论选择哪一种方案，先把账号还给本人。
-            timestamp: 11月10日 14:08
-            replies: []
-            state: normal
-          - id: comment_fishy_manifest
-            author_id: feifeiyu_fishy
-            body: 小报会公开可复核材料，但不会发布能重新接管账号的密钥。
-            timestamp: 11月10日 14:12
-            replies: []
-            state: normal
+        comments: []
     choice_sets:
-      - id: choices_disposal_materials
+      - id: choices_safety_check
         choices:
-          - id: choice_finish_identity
+          - id: choice_prioritize_safety
             action_type: create_reply
-            target_id: comment_owner_priority
+            target_id: thread_safety_check
             title: null
-            body: 完成空白身份复测，证明撤销真人账号权限不会抹除聚合单元的表达。
-            tone: investigate
-            conditions:
-              - type: flag_equals
-                flag: identity_verified
-                value: true
-              - type: has_clue
-                clue_id: subject_testimony
+            body: 先停止个人信息扩散，联系可信成年人和现实支持，不让她独自面对评论区。
+            conditions: []
             effects:
-              - type: grant_clue
-                clue_id: account_separation_proof
-              - type: complete_route
-                route: identity_route
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_finish_governance
+              - type: increment_hidden_value
+                value: target_safety
+                amount: 1
+          - id: choice_prioritize_public_debate
             action_type: create_reply
-            target_id: comment_fishy_manifest
+            target_id: thread_safety_check
             title: null
-            body: 发布经过脱敏的代码、样本摘要、权限链、写回通道和撤销记录。
-            tone: publish
-            conditions:
-              - type: flag_equals
-                flag: governance_verified
-                value: true
-              - type: has_clue
-                clue_id: permission_chain
+            body: 现在最重要的是把所有争议一次说清楚，不能让热度过去。
+            conditions: []
             effects:
-              - type: grant_clue
-                clue_id: public_audit_manifest
-              - type: grant_clue
-                clue_id: complete_audit_bundle
-              - type: complete_route
-                route: governance_route
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_finish_survival
+              - type: increment_hidden_value
+                value: player_exposure
+                amount: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages: []
+    on_enter: []
+    on_end: []
+  - id: phase_02_direction
+    sequence: 2
+    title: 方向形成
+    threads: []
+    choice_sets: []
+    direct_messages:
+      - id: dm_day06_direction
+        sender_id: forus_community_admin
+        participant_ids: [player, forus_community_admin]
+        visibility: private
+        trigger_conditions:
+          - type: flag_equals
+            flag: forus_safety_review_pending
+            value: true
+        arrival: next_phase
+        messages:
+          - id: dm_day06_direction_message
+            author_id: forus_community_admin
+            body: 我们已经看到集中回复和个人信息扩散。请确认你是否还会继续公开引用目标人物的私密内容。
+            timestamp: 11月10日 15:20
+            state: unread
+        choice_sets:
+          - id: choices_day06_direction
+            choices:
+              - id: choice_confirm_privacy
+                action_type: reply_direct_message
+                target_id: dm_day06_direction_message
+                title: 确认不外传
+                body: 不会。我只提交公开链接和经过核对的时间线。
+                conditions: []
+                effects:
+                  - type: set_private_flag
+                    flag: no_private_export
+                    value: true
+                  - type: increment_hidden_value
+                    value: platform_governance
+                    amount: 1
+              - id: choice_continue_public_fight
+                action_type: reply_direct_message
+                target_id: dm_day06_direction_message
+                title: 继续公开争论
+                body: 如果不把所有内容公开，围观者不会停止。
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: player_exposure
+                    amount: 1
+    on_enter: []
+    on_end: []
+  - id: phase_03_path_marker
+    sequence: 3
+    title: 不可逆方向
+    threads:
+      - id: thread_path_marker
+        board_id: contest_watch
+        author_id: source_keeper
+        title: 明天只会留下一个结果
+        body: 今天之后，玩家的行为会决定目标人物获救、网暴被制止、目标人物进入危险结局，或玩家自己成为下一个目标。
+        timestamp: 11月10日 20:00
+        status: pinned
+        comments: []
+    choice_sets:
+      - id: choices_path_marker
+        choices:
+          - id: choice_acknowledge_rescue
             action_type: create_comment
-            target_id: thread_disposal_window
-            title: null
-            body: 提交隔离运行结果，证明城市无需冒用真人账号也能维持必要连接。
-            tone: publish
-            conditions:
-              - type: flag_equals
-                flag: survival_verified
-                value: true
-              - type: has_clue
-                clue_id: erosion_boundary
-            effects:
-              - type: grant_clue
-                clue_id: independent_runtime_proof
-              - type: complete_route
-                route: survival_route
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_synthesize_three
-            action_type: create_post
-            target_id: xunsheng_gazette
-            title: 三个问题必须由同一份协议回答
-            body: 先归还账号，再撤销越权链；公开可复核材料，并让聚合单元只在隔离身份下运行。城市存续不能要求任何人被冒名。
-            tone: publish
+            target_id: thread_path_marker
+            title: 保护目标人物
+            body: null
             conditions:
               - type: all
                 conditions:
-                  - type: flag_equals
-                    flag: identity_verified
-                    value: true
-                  - type: flag_equals
-                    flag: governance_verified
-                    value: true
-                  - type: flag_equals
-                    flag: survival_verified
-                    value: true
-                  - type: has_clue
-                    clue_id: subject_testimony
-                  - type: has_clue
-                    clue_id: permission_chain
-                  - type: has_clue
-                    clue_id: erosion_boundary
+                  - type: hidden_value_at_least
+                    value: target_safety
+                    amount: 4
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: player_exposure
+                      amount: 4
             effects:
-              - type: grant_clue
-                clue_id: account_separation_proof
-              - type: grant_clue
-                clue_id: public_audit_manifest
-              - type: grant_clue
-                clue_id: independent_runtime_proof
-              - type: grant_clue
-                clue_id: complete_audit_bundle
-              - type: complete_route
-                route: identity_route
-              - type: complete_route
-                route: governance_route
-              - type: complete_route
-                route: survival_route
-              - type: grant_card
-                card_id: subject_separation_protocol
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+              - type: set_flag
+                flag: ending_path_target_rescue
+                value: true
+          - id: choice_acknowledge_stop
+            action_type: create_comment
+            target_id: thread_path_marker
+            title: 交给平台复核
+            body: null
+            conditions:
+              - type: all
+                conditions:
+                  - type: hidden_value_at_least
+                    value: truth_confidence
+                    amount: 4
+                  - type: hidden_value_at_least
+                    value: platform_governance
+                    amount: 3
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: player_exposure
+                      amount: 4
+            effects:
+              - type: set_flag
+                flag: ending_path_harassment_stop
+                value: true
+          - id: choice_acknowledge_player_risk
+            action_type: create_comment
+            target_id: thread_path_marker
+            title: 继续实名对抗
+            body: null
+            conditions:
+              - type: hidden_value_at_least
+                value: player_exposure
+                amount: 4
+            effects:
+              - type: set_flag
+                flag: ending_path_player_targeted
+                value: true
+          - id: choice_acknowledge_danger
+            action_type: create_comment
+            target_id: thread_path_marker
+            title: 继续把争议推上热榜
+            body: null
+            conditions:
+              - type: all
+                conditions:
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: target_safety
+                      amount: 4
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: truth_confidence
+                      amount: 4
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: platform_governance
+                      amount: 3
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: player_exposure
+                      amount: 4
+            effects:
+              - type: set_flag
+                flag: ending_path_target_danger
+                value: true
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+summary:
+  title: 不可逆方向
+  body: 第六日结束时，结局方向已经形成，第七日只会呈现其后果。

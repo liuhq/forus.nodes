@@ -1,134 +1,232 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_01
   sequence: 1
   locale: zh-CN
   display_date: 11月5日
-  interaction_limit: 2
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: 不是我发的
-  summary: 一个停用账号仍在持续发言，并且通过了本人验证。
-  on_enter: []
-  on_end:
-    - type: start_encounter
-      encounter_id: encounter_session_noise
-  exits:
-    - target_day_id: day_02
-      conditions:
-        - type: encounter_result
-          encounter_id: encounter_session_noise
-          result: victory
+  title: 错误指控出现
+  summary: 一名高中女生曾公开指控同学盗用作品，帖子删除后，截图和个人信息开始扩散。
+  on_end: []
 accounts:
-  - id: xiaci_yiding
-    username: "@下次一定"
+  - id: target_student_17
+    username: "@晚自习后"
+    role: target
+  - id: source_keeper
+    username: "@原稿保存者"
     role: community
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
-  - id: forus_team
-    username: "@Forus项目组"
-    role: official
+  - id: cropped_context
+    username: "@截屏的人"
+    role: community
+  - id: trend_reposter
+    username: "@热榜搬运站"
+    role: media
 clues:
-  - id: non_person_session
-    name: 非本人会话
-    description: 两条同账号回复来自不同会话，其中一条不属于账号主人。
-cards: []
-encounters:
-  - id: encounter_session_noise
-    name: 会话噪声
-    player_stability: 30
-    player_guard: 0
-    player_influence: 0
-    enemy_stability: 16
-    enemy_guard: 0
-    enemy_influence: 0
-    enemy_pattern: [observe, pressure]
-    reward_choices: [verify_source, edit_wording, ask_details]
-    victory_effects:
-      - type: set_flag
-        flag: day_01_verified
-        value: true
-    defeat_effects: []
-scenes:
-  - id: scene_first_denial
-    entry_conditions: []
+  - id: cropped_context
+    name: 裁剪语境
+    description: 流传截图缺少前后文和完整时间线。
+  - id: target_admitted_error
+    name: 私下承认错误
+    description: 目标人物承认自己没有核实完整材料就公开指控。
+evidence:
+  - id: public_post_timeline
+    name: 公开帖子时间线
+    description: 原帖、删除和转发的公开时间记录。
+    max_confidence: 3
+direct_messages: []
+phases:
+  - id: phase_01_help_post
+    sequence: 1
+    title: 求助帖
     threads:
-      - id: thread_first_denial
-        board_id: xunsheng_gazette
-        author_id: xiaci_yiding
-        title: 过去三周的帖子不是我发的
+      - id: thread_help_post
+        board_id: contest_watch
+        author_id: target_student_17
+        title: 有人说我偷了作品
         body: |-
-          我停用了这个账号，今天回来却发现“我”每天都在回复。语气和标点都很像，系统还显示通过了本人验证。
+          我已经把之前的帖子删掉了。现在有人把一张截图发得到处都是，还说我一直在排挤别人。
 
-          这条是我本人发的。如果稍后“我”否认，请先看会话时间。
-        timestamp: 11月5日 08:14
+          我知道我应该解释，但请不要把我的学校和照片一起发出去。
+        timestamp: 11月5日 08:20
         status: pinned
         comments:
-          - id: comment_proxy_denial
-            author_id: xiaci_yiding
-            body: 刚才只是同步延迟。我从未停用账号。
-            timestamp: 11月5日 08:21
-            replies:
-              - id: reply_owner_marks_denial
-                parent_id: comment_proxy_denial
-                author_id: xiaci_yiding
-                body: 这条不是我，它不在我的设备会话里。
-                timestamp: 11月5日 08:22
-                state: normal
+          - id: comment_privacy_support
+            author_id: source_keeper
+            body: 先停止传播个人信息。作品争议可以核对，学校和照片不应该成为围攻材料。
+            timestamp: 11月5日 08:28
+            replies: []
             state: normal
-          - id: comment_fishy_invites
-            author_id: feifeiyu_fishy
-            body: 小报已保存公开时间线。请只核对可公开证据。
-            timestamp: 11月5日 08:27
+          - id: comment_demand_proof
+            author_id: cropped_context
+            body: 她删帖就是心虚，先把完整证据发出来再说。
+            timestamp: 11月5日 08:31
             replies: []
             state: normal
     choice_sets:
-      - id: choices_first_denial
+      - id: choices_help_post
         choices:
-          - id: choice_compare_sessions
+          - id: choice_support_safety
             action_type: create_reply
-            target_id: comment_fishy_invites
+            target_id: thread_help_post
             title: null
-            body: 先对照会话时间与设备列表，不要求账号主人再次公开身份证明。
-            tone: investigate
+            body: 先确认你是否安全。你可以先说明需要什么帮助，不必立即证明自己清白。
             conditions: []
             effects:
-              - type: grant_clue
-                clue_id: non_person_session
-              - type: increment_counter
-                counter: identity_progress
+              - type: set_flag
+                flag: target_notice_pending
+                value: true
+              - type: increment_hidden_value
+                value: target_safety
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_preserve_logs
+          - id: choice_demand_private_proof
             action_type: create_reply
-            target_id: comment_proxy_denial
+            target_id: thread_help_post
             title: null
-            body: 先冻结新会话并保存签发日志，验证成功不等于权限来源合法。
-            tone: cautious
+            body: 把完整截图和草稿发出来，我才能帮你解释。
             conditions: []
             effects:
-              - type: increment_counter
-                counter: governance_progress
-                amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_check_activity
-            action_type: create_comment
-            target_id: thread_first_denial
-            title: null
-            body: 请比较异常发言前后的在线密度，确认这些账号是否在刻意维持社会响应。
-            tone: investigate
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+          - id: choice_agree_privacy
+            action_type: react_agree
+            target_id: comment_privacy_support
+            title: 赞同保护隐私
+            body: null
             conditions: []
             effects:
-              - type: increment_counter
-                counter: survival_progress
+              - type: set_flag
+                flag: target_notice_pending
+                value: true
+              - type: increment_hidden_value
+                value: target_safety
                 amount: 1
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+          - id: choice_disagree_public_punishment
+            action_type: react_disagree
+            target_id: comment_demand_proof
+            title: 反对公开审判
+            body: null
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: target_safety
+                amount: 1
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+  - id: phase_02_screenshot_wave
+    sequence: 2
+    title: 截图开始流传
+    threads:
+      - id: thread_cropped_screenshot
+        board_id: general_discussion
+        author_id: cropped_context
+        title: 她自己都承认了
+        body: |-
+          这段聊天记录已经说明她不是第一次这样做。别再替她找借口。
+
+          帖子下方出现了目标人物的学校、照片和旧账号链接。
+        timestamp: 11月5日 13:10
+        status: normal
+        comments: []
+      - id: thread_trend_summary
+        board_id: general_discussion
+        author_id: trend_reposter
+        title: 校园创作比赛争议汇总
+        body: 只保留最容易传播的截图和评论，不提供完整作品版本。
+        timestamp: 11月5日 15:00
+        status: normal
+        comments: []
+    choice_sets:
+      - id: choices_screenshot_wave
+        choices:
+          - id: choice_save_public_timeline
+            action_type: create_comment
+            target_id: thread_cropped_screenshot
+            title: null
+            body: 我先保存公开链接和时间线，不把个人信息继续复制到评论区。
+            conditions: []
+            effects:
+              - type: grant_evidence
+                evidence_id: public_post_timeline
+                initial_confidence: 1
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+          - id: choice_quote_screenshot
+            action_type: create_reply
+            target_id: thread_cropped_screenshot
+            title: null
+            body: 直接引用这段截图，要求她公开解释所有细节。
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: player_exposure
+                amount: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages:
+      - id: dm_target_first_contact
+        sender_id: target_student_17
+        participant_ids: [player, target_student_17]
+        visibility: private
+        trigger_conditions:
+          - type: flag_equals
+            flag: target_notice_pending
+            value: true
+        arrival: next_phase
+        messages:
+          - id: dm_target_first_message
+            author_id: target_student_17
+            body: 你是刚才说“先确认我是否安全”的那个人吗？我不知道该不该把事情告诉你。
+            timestamp: 11月5日 18:20
+            state: unread
+        choice_sets:
+          - id: choices_target_first_contact
+            choices:
+              - id: choice_reply_check_safety
+                action_type: reply_direct_message
+                target_id: dm_target_first_message
+                title: 先确认安全
+                body: 你可以先告诉我现在是否安全，不必立即证明自己清白。
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: 1
+                  - type: set_private_flag
+                    flag: target_trust_started
+                    value: true
+              - id: choice_reply_request_proof
+                action_type: reply_direct_message
+                target_id: dm_target_first_message
+                title: 先提供证据
+                body: 把完整截图和草稿发给我，我才能帮你。
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: -1
+              - id: choice_reply_private_boundary
+                action_type: reply_direct_message
+                target_id: dm_target_first_message
+                title: 承诺保密
+                body: 我不会把你的私信转发出去。
+                conditions: []
+                effects:
+                  - type: set_private_flag
+                    flag: private_boundary_respected
+                    value: true
+    on_enter: []
+    on_end: []
+  - id: phase_03_first_contact
+    sequence: 3
+    title: 第一次私信
+    threads: []
+    choice_sets: []
+    direct_messages: []
+    on_enter: []
+    on_end: []
+summary:
+  title: 删除不等于澄清
+  body: 目标人物的错误指控是真实事件，但流传截图和个人信息扩散已经超出责任讨论。

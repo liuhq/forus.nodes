@@ -1,10 +1,9 @@
 import { Welcome } from "../welcome/welcome"
-import type { Route } from "./+types/home"
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "《11月5日》 | Forus" },
+    { name: "description", content: "Forus 论坛中的七日分支叙事。" },
   ]
 }
 

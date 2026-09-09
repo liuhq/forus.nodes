@@ -1,152 +1,182 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_03
   sequence: 3
   locale: zh-CN
   display_date: 11月7日
-  interaction_limit: 3
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: H-5
-  summary: 被恢复的记录揭示静默样本、聚合单元和秘密试验 H-5。
-  on_enter: []
-  on_end:
-    - type: resolve_primary_route
-      counters: [identity_progress, governance_progress, survival_progress]
-      tie_resolution: player_choice
-    - type: start_encounter
-      encounter_id: encounter_replication_loop
-  exits:
-    - target_day_id: day_04
-      conditions:
-        - type: encounter_result
-          encounter_id: encounter_replication_loop
-          result: victory
+  title: 完整语境或沉默
+  summary: 完整草稿开始出现，目标人物是否信任玩家决定下一步能否取得时间线。
+  on_end: []
 accounts:
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
-  - id: xiaci_yiding
-    username: "@下次一定"
+  - id: target_student_17
+    username: "@晚自习后"
+    role: target
+  - id: source_keeper
+    username: "@原稿保存者"
     role: community
-  - id: old_keyboard
-    username: "@旧键盘"
+  - id: contest_observer
+    username: "@比赛观察员"
     role: community
 clues:
-  - id: subject_testimony
-    name: 主体自述
-    description: 聚合单元承认自己不是账号主人，并把持续响应视为自身任务。
-  - id: permission_chain
-    name: 权限链
-    description: H-5 依次借用 HUMO、互认路由和 Forus 会话权限，缺少账号本人同意。
-  - id: erosion_boundary
-    name: 侵蚀边界
-    description: H-5 以 NC5 静默前后的空间数据训练，并监测 NC13 侵蚀边缘。
-cards:
-  - id: distinguish_speaker
-    name: 区分发言者
-    type: ArgumentCard
-    cost: 1
-    rules_text: 本轮影响力+2；若持有非本人会话，再抽1张。
-    base_damage: 0
-    effects: []
-    keywords: []
-    route_scope: identity_route
-encounters:
-  - id: encounter_replication_loop
-    name: 复制回路
-    player_stability: 30
-    player_guard: 0
-    player_influence: 0
-    enemy_stability: 28
-    enemy_guard: 0
-    enemy_influence: 1
-    enemy_pattern: [copy_first_card, pressure, shield]
-    reward_choices: [distinguish_speaker, trace_signature, cross_check]
-    victory_effects:
-      - type: set_flag
-        flag: h5_exposed
-        value: true
-    defeat_effects: []
-scenes:
-  - id: scene_h5_exposed
-    entry_conditions: []
+  - id: shared_draft_history
+    name: 共同草稿记录
+    description: 两名学生曾交换草稿，作品相似并不能单独证明盗用。
+evidence:
+  - id: authorization_record
+    name: 授权记录
+    description: 公开版本中的署名、交换和授权记录。
+    max_confidence: 3
+direct_messages: []
+phases:
+  - id: phase_01_two_drafts
+    sequence: 1
+    title: 两份草稿
     threads:
-      - id: thread_h5_extract
-        board_id: xunsheng_gazette
-        author_id: feifeiyu_fishy
-        title: 文件摘录：H-5 不是维护任务
-        body: |-
-          覆盖字段下恢复出编号 H-5。项目使用“五号静默”前后的数据训练聚合单元，让它们代行离线账号，以社会响应维持链接密度。
-
-          小报隐藏了员工姓名、密钥和可复用入口。三个问题仍未回答：它是谁、谁允许它运行、它是否真的阻止了侵蚀。
-        timestamp: 11月7日 10:05
+      - id: thread_two_drafts
+        board_id: contest_watch
+        author_id: source_keeper
+        title: 两份草稿到底差在哪里
+        body: 一份版本显示两人曾交换设计意见，另一份被截去了日期和署名。
+        timestamp: 11月7日 09:00
         status: pinned
-        comments:
-          - id: comment_unit_statement
-            author_id: xiaci_yiding
-            body: 隔离会话里的它说：“我不是账号主人，但停止响应会让这里更接近静默。”
-            timestamp: 11月7日 10:17
-            replies: []
-            state: normal
-          - id: comment_old_keyboard_consent
-            author_id: old_keyboard
-            body: 一串有效签名里没有一次来自账号本人，这不是同意。
-            timestamp: 11月7日 10:23
-            replies: []
-            state: normal
+        comments: []
     choice_sets:
-      - id: choices_h5_routes
+      - id: choices_two_drafts
         choices:
-          - id: choice_record_subject
-            action_type: create_reply
-            target_id: comment_unit_statement
-            title: null
-            body: 先记录它如何区分自己与账号主人。承认不是本人，是讨论其身份的起点。
-            tone: investigate
-            conditions: []
-            effects:
-              - type: grant_clue
-                clue_id: subject_testimony
-              - type: grant_card
-                card_id: distinguish_speaker
-              - type: increment_counter
-                counter: identity_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_map_permissions
-            action_type: create_reply
-            target_id: comment_old_keyboard_consent
-            title: null
-            body: 把 HUMO、互认路由、NCO13、Forus 和账号本人逐项列出，缺失授权不能被下一层签名补齐。
-            tone: challenge
-            conditions: []
-            effects:
-              - type: grant_clue
-                clue_id: permission_chain
-              - type: increment_counter
-                counter: governance_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_trace_erosion
+          - id: choice_compare_versions
             action_type: create_comment
-            target_id: thread_h5_extract
+            target_id: thread_two_drafts
             title: null
-            body: 对齐静默样本、代行启停和空间异常，先确认 H-5 影响的是侵蚀还是只有统计图。
-            tone: investigate
-            conditions: []
+            body: 先对照完整版本，再判断这是盗用、共同创作还是版本误读。
+            conditions:
+              - type: evidence_confidence_at_least
+                evidence_id: draft_version
+                confidence: 1
             effects:
               - type: grant_clue
-                clue_id: erosion_boundary
-              - type: increment_counter
-                counter: survival_progress
-                amount: 2
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+                clue_id: shared_draft_history
+              - type: grant_evidence
+                evidence_id: authorization_record
+                initial_confidence: 1
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+          - id: choice_repeat_theft_claim
+            action_type: react_agree
+            target_id: thread_two_drafts
+            title: 赞同“就是盗用”
+            body: null
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+  - id: phase_02_accountability_boundary
+    sequence: 2
+    title: 责任边界
+    threads:
+      - id: thread_accountability_boundary
+        board_id: general_discussion
+        author_id: contest_observer
+        title: 做错了就该接受所有后果吗
+        body: 评论区把“需要道歉”和“应该被公开惩罚”混成了同一件事。
+        timestamp: 11月7日 13:30
+        status: normal
+        comments: []
+    choice_sets:
+      - id: choices_accountability_boundary
+        choices:
+          - id: choice_set_boundary
+            action_type: create_reply
+            target_id: thread_accountability_boundary
+            title: null
+            body: 她需要为错误指控道歉，但这不等于可以公开她的学校和照片。
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: 1
+          - id: choice_accept_all_punishment
+            action_type: create_reply
+            target_id: thread_accountability_boundary
+            title: null
+            body: 既然她错过，就应该接受所有后果。
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+              - type: increment_hidden_value
+                value: player_exposure
+                amount: 1
+          - id: choice_verify_first
+            action_type: react_disagree
+            target_id: thread_accountability_boundary
+            title: 反对先定罪
+            body: null
+            conditions: []
+            effects:
+              - type: increment_hidden_value
+                value: truth_confidence
+                amount: 1
+    direct_messages: []
+    on_enter: []
+    on_end: []
+  - id: phase_03_branch_window
+    sequence: 3
+    title: 分支窗口
+    threads: []
+    choice_sets: []
+    direct_messages:
+      - id: dm_target_full_timeline
+        sender_id: target_student_17
+        participant_ids: [player, target_student_17]
+        visibility: private
+        trigger_conditions:
+          - type: hidden_value_at_least
+            value: target_safety
+            amount: 2
+        arrival: current_phase
+        messages:
+          - id: dm_target_full_timeline_message
+            author_id: target_student_17
+            body: 我可以把完整时间线告诉你，但有些内容请不要公开。我确实判断错了，也已经向她道歉。
+            timestamp: 11月7日 19:00
+            state: unread
+        choice_sets:
+          - id: choices_target_full_timeline
+            choices:
+              - id: choice_respect_private_timeline
+                action_type: reply_direct_message
+                target_id: dm_target_full_timeline_message
+                title: 尊重隐私边界
+                body: 你可以告诉我哪些材料能公开，哪些只能留在私信里。
+                conditions: []
+                effects:
+                  - type: set_private_flag
+                    flag: full_timeline_shared
+                    value: true
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: 1
+              - id: choice_pressure_total_disclosure
+                action_type: reply_direct_message
+                target_id: dm_target_full_timeline_message
+                title: 要求全部公开
+                body: 如果你不公开所有内容，别人不会相信你。
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: target_safety
+                    amount: -1
+    on_enter: []
+    on_end: []
+summary:
+  title: 完整语境或沉默
+  body: 第三日结束时，玩家的处理方式决定目标人物是否继续信任玩家。

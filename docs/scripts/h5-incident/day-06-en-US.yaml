@@ -1,191 +1,222 @@
 meta:
-  story_id: h5_incident
+  story_id: online_harassment_case
   day_id: day_06
   sequence: 6
   locale: en-US
   display_date: November 10
-  interaction_limit: 2
-  content_version: 2.0.0
-  license: CC-BY-SA-4.0
-  title: Before Disposition
-  summary: Verification becomes the executable material required for sealing, disclosure, or subject separation.
-  on_enter: []
+  title: The Irreversible Direction
+  summary: Target safety, factual confidence, platform governance, and player exposure form an irreversible direction today.
   on_end: []
-  exits:
-    - target_day_id: day_07
-      conditions: []
 accounts:
-  - id: universal_official
-    username: "@寰宇Universal"
-    role: organization
-  - id: xiaci_yiding
-    username: "@下次一定"
+  - id: target_student_17
+    username: "@AfterStudyHall"
+    role: target
+  - id: forus_community_admin
+    username: "@Forus社区管理员"
+    role: official
+  - id: source_keeper
+    username: "@DraftKeeper"
     role: community
-  - id: feifeiyu_fishy
-    username: "@飞飞鱼Fishy"
-    role: editor
-clues:
-  - id: account_separation_proof
-    name: Account-separation Proof
-    description: An Aggregate Unit can continue speaking after losing all authority over the human account.
-  - id: public_audit_manifest
-    name: Public Audit Manifest
-    description: Code, sample, permissions, writeback paths, and deletion records appear in one manifest.
-  - id: independent_runtime_proof
-    name: Independent-runtime Proof
-    description: Isolated operation does not weaken erosion protection and does not require fake human activity.
-  - id: complete_audit_bundle
-    name: Complete Audit Bundle
-    description: Evidence from at least two routes can be independently reproduced.
-cards:
-  - id: subject_separation_protocol
-    name: Subject Separation Protocol
-    type: ProtocolCard
-    cost: 3
-    rules_text: Final encounter only; revoke proxy authority while preserving Unit stability and open the separation exit.
-    base_damage: 0
-    effects:
-      - type: set_flag
-        flag: subject_protocol_executed
-        value: true
-    keywords: [protocol, true_ending]
-    route_scope: shared
-encounters: []
-scenes:
-  - id: scene_disposal_materials
-    entry_conditions: []
+clues: []
+evidence: []
+direct_messages: []
+phases:
+  - id: phase_01_safety_check
+    sequence: 1
+    title: The safety check
     threads:
-      - id: thread_disposal_window
-        board_id: xunsheng_gazette
-        author_id: universal_official
-        title: The final H-5 disposition window opens tomorrow
-        body: |-
-          An executable proposal must address account return, permission revocation, sample handling, and city risk. Proposals without evidence will not enter tomorrow's window.
-
-          Sealing requires one complete route; disclosure requires a complete audit bundle; subject separation must answer identity, governance, and survival together.
-        timestamp: November 10, 14:00
+      - id: thread_safety_check
+        board_id: general_discussion
+        author_id: source_keeper
+        title: What matters most now?
+        body: The public argument continues, but whether the target is safe is now more urgent than who was first to be wrong.
+        timestamp: November 10 09:00
         status: pinned
-        comments:
-          - id: comment_owner_priority
-            author_id: xiaci_yiding
-            body: Whatever the proposal, return the accounts to their owners first.
-            timestamp: November 10, 14:08
-            replies: []
-            state: normal
-          - id: comment_fishy_manifest
-            author_id: feifeiyu_fishy
-            body: The Gazette will publish reproducible material, but never keys that can seize the accounts again.
-            timestamp: November 10, 14:12
-            replies: []
-            state: normal
+        comments: []
     choice_sets:
-      - id: choices_disposal_materials
+      - id: choices_safety_check
         choices:
-          - id: choice_finish_identity
+          - id: choice_prioritize_safety
             action_type: create_reply
-            target_id: comment_owner_priority
+            target_id: thread_safety_check
             title: null
-            body: Complete the blank-identity retest and prove that revoking a human account does not erase the Unit's expression.
-            tone: investigate
-            conditions:
-              - type: flag_equals
-                flag: identity_verified
-                value: true
-              - type: has_clue
-                clue_id: subject_testimony
+            body: Stop the spread of personal information first. Contact trusted adults and real-world support so she is not facing the replies alone.
+            conditions: []
             effects:
-              - type: grant_clue
-                clue_id: account_separation_proof
-              - type: complete_route
-                route: identity_route
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_finish_governance
+              - type: increment_hidden_value
+                value: target_safety
+                amount: 1
+          - id: choice_prioritize_public_debate
             action_type: create_reply
-            target_id: comment_fishy_manifest
+            target_id: thread_safety_check
             title: null
-            body: Publish redacted code, sample summaries, permission chains, writeback paths, and revocation records.
-            tone: publish
-            conditions:
-              - type: flag_equals
-                flag: governance_verified
-                value: true
-              - type: has_clue
-                clue_id: permission_chain
+            body: The priority is explaining everything while the attention is here.
+            conditions: []
             effects:
-              - type: grant_clue
-                clue_id: public_audit_manifest
-              - type: grant_clue
-                clue_id: complete_audit_bundle
-              - type: complete_route
-                route: governance_route
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_finish_survival
+              - type: increment_hidden_value
+                value: player_exposure
+                amount: 1
+              - type: increment_hidden_value
+                value: target_safety
+                amount: -1
+    direct_messages: []
+    on_enter: []
+    on_end: []
+  - id: phase_02_direction
+    sequence: 2
+    title: The direction forms
+    threads: []
+    choice_sets: []
+    direct_messages:
+      - id: dm_day06_direction
+        sender_id: forus_community_admin
+        participant_ids: [player, forus_community_admin]
+        visibility: private
+        trigger_conditions:
+          - type: flag_equals
+            flag: forus_safety_review_pending
+            value: true
+        arrival: next_phase
+        messages:
+          - id: dm_day06_direction_message
+            author_id: forus_community_admin
+            body: 我们已经看到集中回复和个人信息扩散。请确认你是否还会继续公开引用目标人物的私密内容。
+            timestamp: November 10 15:20
+            state: unread
+        choice_sets:
+          - id: choices_day06_direction
+            choices:
+              - id: choice_confirm_privacy
+                action_type: reply_direct_message
+                target_id: dm_day06_direction_message
+                title: Confirm privacy
+                body: I will not. I will submit only public links and a verified timeline.
+                conditions: []
+                effects:
+                  - type: set_private_flag
+                    flag: no_private_export
+                    value: true
+                  - type: increment_hidden_value
+                    value: platform_governance
+                    amount: 1
+              - id: choice_continue_public_fight
+                action_type: reply_direct_message
+                target_id: dm_day06_direction_message
+                title: Continue the public fight
+                body: If everything is not public, the crowd will not stop.
+                conditions: []
+                effects:
+                  - type: increment_hidden_value
+                    value: player_exposure
+                    amount: 1
+    on_enter: []
+    on_end: []
+  - id: phase_03_path_marker
+    sequence: 3
+    title: The irreversible direction
+    threads:
+      - id: thread_path_marker
+        board_id: contest_watch
+        author_id: source_keeper
+        title: Only one result will remain tomorrow
+        body: After today, the player’s actions will determine whether the target is rescued, harassment is stopped, the target enters danger, or the player becomes the next target.
+        timestamp: November 10 20:00
+        status: pinned
+        comments: []
+    choice_sets:
+      - id: choices_path_marker
+        choices:
+          - id: choice_acknowledge_rescue
             action_type: create_comment
-            target_id: thread_disposal_window
-            title: null
-            body: Submit the isolated runtime result. The city can maintain necessary links without impersonating human accounts.
-            tone: publish
-            conditions:
-              - type: flag_equals
-                flag: survival_verified
-                value: true
-              - type: has_clue
-                clue_id: erosion_boundary
-            effects:
-              - type: grant_clue
-                clue_id: independent_runtime_proof
-              - type: complete_route
-                route: survival_route
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
-          - id: choice_synthesize_three
-            action_type: create_post
-            target_id: xunsheng_gazette
-            title: One protocol must answer all three questions
-            body: Return the accounts, revoke the unauthorized chain, publish reproducible evidence, and allow Units to run only under isolated identities. City survival cannot require impersonation.
-            tone: publish
+            target_id: thread_path_marker
+            title: Protect the target
+            body: null
             conditions:
               - type: all
                 conditions:
-                  - type: flag_equals
-                    flag: identity_verified
-                    value: true
-                  - type: flag_equals
-                    flag: governance_verified
-                    value: true
-                  - type: flag_equals
-                    flag: survival_verified
-                    value: true
-                  - type: has_clue
-                    clue_id: subject_testimony
-                  - type: has_clue
-                    clue_id: permission_chain
-                  - type: has_clue
-                    clue_id: erosion_boundary
+                  - type: hidden_value_at_least
+                    value: target_safety
+                    amount: 4
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: player_exposure
+                      amount: 4
             effects:
-              - type: grant_clue
-                clue_id: account_separation_proof
-              - type: grant_clue
-                clue_id: public_audit_manifest
-              - type: grant_clue
-                clue_id: independent_runtime_proof
-              - type: grant_clue
-                clue_id: complete_audit_bundle
-              - type: complete_route
-                route: identity_route
-              - type: complete_route
-                route: governance_route
-              - type: complete_route
-                route: survival_route
-              - type: grant_card
-                card_id: subject_separation_protocol
-            once: true
-            narrative_scope: main
-            interaction_cost: 1
+              - type: set_flag
+                flag: ending_path_target_rescue
+                value: true
+          - id: choice_acknowledge_stop
+            action_type: create_comment
+            target_id: thread_path_marker
+            title: Let the platform review
+            body: null
+            conditions:
+              - type: all
+                conditions:
+                  - type: hidden_value_at_least
+                    value: truth_confidence
+                    amount: 4
+                  - type: hidden_value_at_least
+                    value: platform_governance
+                    amount: 3
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: player_exposure
+                      amount: 4
+            effects:
+              - type: set_flag
+                flag: ending_path_harassment_stop
+                value: true
+          - id: choice_acknowledge_player_risk
+            action_type: create_comment
+            target_id: thread_path_marker
+            title: Keep fighting under your name
+            body: null
+            conditions:
+              - type: hidden_value_at_least
+                value: player_exposure
+                amount: 4
+            effects:
+              - type: set_flag
+                flag: ending_path_player_targeted
+                value: true
+          - id: choice_acknowledge_danger
+            action_type: create_comment
+            target_id: thread_path_marker
+            title: Keep pushing the dispute upward
+            body: null
+            conditions:
+              - type: all
+                conditions:
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: target_safety
+                      amount: 4
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: truth_confidence
+                      amount: 4
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: platform_governance
+                      amount: 3
+                  - type: not
+                    condition:
+                      type: hidden_value_at_least
+                      value: player_exposure
+                      amount: 4
+            effects:
+              - type: set_flag
+                flag: ending_path_target_danger
+                value: true
+    direct_messages: []
     on_enter: []
-    exits: []
+    on_end: []
+summary:
+  title: The Irreversible Direction
+  body: By the end of day six, the ending direction has formed. Day seven only presents its consequences.
